@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -42,12 +43,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.PackageManagerCompat
+import androidx.lifecycle.ViewModelProvider
 import coil.request.Disposable
 import com.example.skycast.constant.Const.Companion.colorBg1
 import com.example.skycast.constant.Const.Companion.colorBg2
 import com.example.skycast.constant.Const.Companion.permissions
 import com.example.skycast.model.MyLatLng
+import com.example.skycast.model.forecast.ForecastResult
+import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.ui.theme.SkyCastTheme
+import com.example.skycast.viewmodel.MainViewModel
+import com.example.skycast.viewmodel.STATE
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -62,9 +68,9 @@ import kotlin.coroutines.coroutineContext
 class MainActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
     private lateinit var locationCallback: LocationCallback
     private var locationRequired: Boolean = false
+    private lateinit var mainViewModel: MainViewModel
 
     override fun onResume() {
         super.onResume()
@@ -101,6 +107,8 @@ class MainActivity : ComponentActivity() {
 
         initLocationClient()
 
+        initViewModel()
+
         setContent {
 
             // this will save our current location
@@ -131,6 +139,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun initViewModel() {
+        mainViewModel = ViewModelProvider(this@MainActivity)[MainViewModel::class.java]
     }
 
     @Composable
@@ -208,8 +220,61 @@ class MainActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ){
-                Text(text = "hello")
+                if (mainViewModel.state == STATE.LOADING){
+                    LoadingSection()
+                }
+                else if (mainViewModel.state == STATE.FAILED){
+                    ErrorSection(mainViewModel.errorMessage)
+                }
+                else{
+                    WeatherSection(mainViewModel.weatherResponse)
+                    ForecastSection(mainViewModel.forecastResponse)
+                }
             }
+        }
+    }
+
+    @Composable
+    fun ForecastSection(forecastResponse: ForecastResult) {
+        return Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = forecastResponse.toString())
+        }
+    }
+
+    @Composable
+    fun WeatherSection(weatherResponse: WeatherResult) {
+        return Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = weatherResponse.toString())
+        }
+    }
+
+    @Composable
+    fun ErrorSection(errorMessage: String) {
+        return Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = errorMessage, color = Color.White)
+        }
+    }
+
+    @Composable
+    fun LoadingSection() {
+        return Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            CircularProgressIndicator(color = Color.White)
         }
     }
 
