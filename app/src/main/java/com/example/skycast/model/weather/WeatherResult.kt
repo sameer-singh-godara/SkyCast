@@ -15,7 +15,7 @@ data class WeatherResult(
     @SerializedName("sys") var sys: Sys? = Sys(),
     @SerializedName("timezone") var timezone: Int? = null,
     @SerializedName("id") var id: Int? = null,
-    @SerializedName("name") var name: Int? = null,
+    @SerializedName("name") var name: String? = null,
     @SerializedName("cod") var cod: Int? = null,
     @SerializedName("snow") var snow: Snow? = Snow(),
 )

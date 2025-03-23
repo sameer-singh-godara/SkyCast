@@ -9,19 +9,16 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,12 +36,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.core.content.PackageManagerCompat
 import androidx.lifecycle.ViewModelProvider
-import coil.request.Disposable
 import com.example.skycast.constant.Const.Companion.colorBg1
 import com.example.skycast.constant.Const.Companion.colorBg2
 import com.example.skycast.constant.Const.Companion.permissions
@@ -62,7 +56,6 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.coroutineScope
-import kotlin.coroutines.coroutineContext
 
 
 class MainActivity : ComponentActivity() {
@@ -126,6 +119,9 @@ class MainActivity : ComponentActivity() {
                             location.longitude
                         )
                     }
+
+                    // fetch API when location change
+                    fetchWeatherInformation(mainViewModel, currentLocation)
                 }
             }
 
@@ -139,6 +135,13 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun fetchWeatherInformation(mainViewModel: MainViewModel, currentLocation: MyLatLng) {
+        mainViewModel.state = STATE.LOADING
+        mainViewModel.getWeatherByLocation(currentLocation)
+        mainViewModel.getForecastByLocation(currentLocation)
+        mainViewModel.state = STATE.SUCCESS
     }
 
     private fun initViewModel() {
