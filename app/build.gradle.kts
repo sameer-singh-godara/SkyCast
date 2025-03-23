@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
 }
 
 android {
@@ -56,4 +57,23 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Location
+    implementation(libs.play.services.location)
+
+    // API
+    implementation(libs.gson)
+    implementation(libs.retrofit)
+    implementation(libs.okhttp)
+    implementation(libs.converter.gson)
+
+    // Loading Network image
+    implementation(libs.coil.compose)
+
+    // Display Awesome Font
+//    implementation(libs.fontawesomecompose)
+
+    // Full layout without Status Bar
+    implementation(libs.accompanist.systemuicontroller)
+
 }
