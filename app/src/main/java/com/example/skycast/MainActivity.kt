@@ -11,8 +11,14 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -24,11 +30,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.content.PackageManagerCompat
 import coil.request.Disposable
+import com.example.skycast.constant.Const.Companion.colorBg1
+import com.example.skycast.constant.Const.Companion.colorBg2
 import com.example.skycast.constant.Const.Companion.permissions
 import com.example.skycast.model.MyLatLng
 import com.example.skycast.ui.theme.SkyCastTheme
@@ -159,7 +175,42 @@ class MainActivity : ComponentActivity() {
             }
         })
 
-        Text(text = "${currentLocation.lat}/${currentLocation.lng}")
+        val gradient = Brush.linearGradient(
+            colors = listOf(Color(colorBg1),Color(colorBg2)),
+            start = Offset(1000f,-1000f),
+            end = Offset(1000f, -1000f)
+        )
+        
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(gradient)
+        ){
+            val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+            val marginTop = screenHeight * 0.2f // I want margin top by 20% height
+            val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
+
+            Column (
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        // define the layout for the child
+                        layout(
+                            placeable.width,
+                            placeable.height + marginTopPx.toInt()
+                        ) {
+                            placeable.placeRelative(0, marginTopPx.toInt())
+                        }
+                    },
+
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+
+            ){
+                Text(text = "hello")
+            }
+        }
     }
 
     private fun initLocationClient() {
