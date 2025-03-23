@@ -46,6 +46,7 @@ import com.example.skycast.model.MyLatLng
 import com.example.skycast.model.forecast.ForecastResult
 import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.ui.theme.SkyCastTheme
+import com.example.skycast.view.WeatherSection
 import com.example.skycast.viewmodel.MainViewModel
 import com.example.skycast.viewmodel.STATE
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -223,15 +224,17 @@ class MainActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
 
             ){
-                if (mainViewModel.state == STATE.LOADING){
-                    LoadingSection()
-                }
-                else if (mainViewModel.state == STATE.FAILED){
-                    ErrorSection(mainViewModel.errorMessage)
-                }
-                else{
-                    WeatherSection(mainViewModel.weatherResponse)
-                    ForecastSection(mainViewModel.forecastResponse)
+                when (mainViewModel.state) {
+                    STATE.LOADING -> {
+                        LoadingSection()
+                    }
+                    STATE.FAILED -> {
+                        ErrorSection(mainViewModel.errorMessage)
+                    }
+                    else -> {
+                        WeatherSection(mainViewModel.weatherResponse)
+                        ForecastSection(mainViewModel.forecastResponse)
+                    }
                 }
             }
         }
@@ -248,16 +251,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @Composable
-    fun WeatherSection(weatherResponse: WeatherResult) {
-        return Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = weatherResponse.toString())
-        }
-    }
 
     @Composable
     fun ErrorSection(errorMessage: String) {

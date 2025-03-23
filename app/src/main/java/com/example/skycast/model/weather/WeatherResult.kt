@@ -1,11 +1,10 @@
 package com.example.skycast.model.weather
 
-import android.opengl.Visibility
 import com.google.gson.annotations.SerializedName
 
 data class WeatherResult(
     @SerializedName("coord") var coord: Coord? = Coord(),
-    @SerializedName("weather") var weather: ArrayList<Any> = arrayListOf(),
+    @SerializedName("weather") var weather: ArrayList<Weather> = arrayListOf(),
     @SerializedName("base") var base: String? = null,
     @SerializedName("main") var main: Main? = Main(),
     @SerializedName("visibility") var visibility: Int? = null,
