@@ -1,5 +1,6 @@
 package com.example.skycast.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,6 +28,7 @@ class MainViewModel : ViewModel() {
     var errorMessage: String by mutableStateOf(value = "")
 
     fun getWeatherByLocation(latLng: MyLatLng) {
+        Log.d("Weather App", "API Called!!!")
         viewModelScope.launch {
             state = STATE.LOADING
             val apiService = RetrofitClient.getInstance()

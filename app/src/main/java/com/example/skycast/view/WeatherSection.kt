@@ -2,8 +2,11 @@ package com.example.skycast.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,9 +20,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.skycast.constant.Const.Companion.LOADING
+import com.example.skycast.constant.Const.Companion.NA
 import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.utils.Utils.Companion.timestampToHumanDate
 import com.example.skycast.utils.Utils.Companion.buildIcon
+import com.guru.fontawesomecomposelib.FaIcon
+import com.guru.fontawesomecomposelib.FaIconType
+import com.guru.fontawesomecomposelib.FaIcons
 
 @Composable
 fun WeatherSection(weatherResponse: WeatherResult) {
@@ -57,10 +64,46 @@ fun WeatherSection(weatherResponse: WeatherResult) {
         temp = "${it.temp}°C"
     }
 
+    // Wind
+    var wind = ""
+    weatherResponse.wind.let {
+        wind = if (it == null) LOADING else "${it.speed}"
+    }
+
+    // Cloud
+    var clouds = ""
+    weatherResponse.clouds.let {
+        clouds = if (it == null) LOADING else "${it.all}"
+    }
+    // Snow
+    var snow = ""
+    weatherResponse.snow.let {
+        snow = if (it!!.d1h == null) NA else "${it.d1h}"
+    }
+
     WeatherTitleSection(text = title, subText = subTitle, fontSize = 30.sp)
     WeatherImage(icon = icon)
     WeatherTitleSection(text = temp, subText = discription, fontSize = 60.sp)
 
+    Row (
+        modifier = Modifier.fillMaxWidth()
+            .padding(16.dp),
+
+        horizontalArrangement = Arrangement.SpaceAround
+    ){
+        WeatherInfo(icon = FaIcons.Wind, text = wind)
+        WeatherInfo(icon = FaIcons.Cloud, text = clouds)
+        WeatherInfo(icon = FaIcons.Snowflake, text = snow)
+    }
+
+}
+
+@Composable
+fun WeatherInfo(icon: FaIconType.SolidIcon, text: String) {
+    Column {
+        FaIcon(faIcon = icon, size = 48.dp, tint = Color.White)
+        Text(text, fontSize = 24.sp, color = Color.White)
+    }
 }
 
 

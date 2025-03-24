@@ -15,9 +15,16 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -46,6 +53,7 @@ import com.example.skycast.model.MyLatLng
 import com.example.skycast.model.forecast.ForecastResult
 import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.ui.theme.SkyCastTheme
+import com.example.skycast.view.ForecastSection
 import com.example.skycast.view.WeatherSection
 import com.example.skycast.viewmodel.MainViewModel
 import com.example.skycast.viewmodel.STATE
@@ -121,8 +129,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-                    // fetch API when location change
-                    fetchWeatherInformation(mainViewModel, currentLocation)
+
                 }
             }
 
@@ -191,6 +198,10 @@ class MainActivity : ComponentActivity() {
             }
         })
 
+        LaunchedEffect(key1 = true, block = {
+            fetchWeatherInformation(mainViewModel, currentLocation)
+        })
+
         val gradient = Brush.linearGradient(
             colors = listOf(Color(colorBg1),Color(colorBg2)),
             start = Offset(1000f,-1000f),
@@ -200,10 +211,12 @@ class MainActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(gradient)
+                .background(gradient),
+            contentAlignment = Alignment.TopEnd
+
         ){
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-            val marginTop = screenHeight * 0.2f // I want margin top by 20% height
+            val marginTop = screenHeight * 0.1f // I want margin top by 20% height
             val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
 
             Column (
@@ -237,17 +250,20 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        }
-    }
 
-    @Composable
-    fun ForecastSection(forecastResponse: ForecastResult) {
-        return Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(text = forecastResponse.toString())
+            FloatingActionButton(
+                onClick = {
+                    // fetch API when location change
+                    fetchWeatherInformation(mainViewModel, currentLocation)
+                },
+                modifier = Modifier.padding(bottom = 16.dp)
+
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+
+            }
+
+
         }
     }
 

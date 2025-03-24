@@ -72,7 +72,8 @@ dependencies {
     implementation(libs.coil.compose)
 
     // Display Awesome Font
-//    implementation(libs.fontawesomecompose)
+    implementation(libs.fontawesomecompose)
+
 
     // Full layout without Status Bar
     implementation(libs.accompanist.systemuicontroller)
