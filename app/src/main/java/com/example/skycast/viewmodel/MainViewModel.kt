@@ -1,5 +1,7 @@
 package com.example.skycast.viewmodel
 
+import android.content.Context
+import android.location.Geocoder
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,7 +12,9 @@ import com.example.skycast.model.MyLatLng
 import com.example.skycast.model.forecast.ForecastResult
 import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.network.RetrofitClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 enum class STATE {
     LOADING,
@@ -53,6 +57,45 @@ class MainViewModel : ViewModel() {
                 state = STATE.SUCCESS
             } catch (e: Exception) {
                 errorMessage = e.message!!.toString()
+                state = STATE.FAILED
+            }
+        }
+    }
+
+    private suspend fun getCoordinatesFromLocationName(context: Context, locationName: String): MyLatLng? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val geocoder = Geocoder(context)
+                val addresses = geocoder.getFromLocationName(locationName, 1)
+                if (addresses?.isNotEmpty() == true) {
+                    val address = addresses[0]
+                    MyLatLng(address.latitude, address.longitude)
+                } else {
+                    null
+                }
+            } catch (e: Exception) {
+                errorMessage = "Location not found: ${e.message}"
+                null
+            }
+        }
+    }
+
+    fun getWeatherByLocationName(context: Context, locationName: String) {
+        viewModelScope.launch {
+            state = STATE.LOADING
+            errorMessage = ""
+            try {
+                val coordinates = getCoordinatesFromLocationName(context, locationName)
+                if (coordinates != null) {
+                    getWeatherByLocation(coordinates)
+                    getForecastByLocation(coordinates)
+                    state = STATE.SUCCESS
+                } else {
+                    errorMessage = "Location not found"
+                    state = STATE.FAILED
+                }
+            } catch (e: Exception) {
+                errorMessage = e.message ?: "Unknown error occurred"
                 state = STATE.FAILED
             }
         }

@@ -14,19 +14,32 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -46,6 +59,11 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.example.skycast.constant.Const.Companion.colorBg1
 import com.example.skycast.constant.Const.Companion.colorBg2
 import com.example.skycast.constant.Const.Companion.permissions
@@ -66,6 +84,11 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import kotlinx.coroutines.coroutineScope
 
+sealed class Screen(val route: String) {
+    object Home : Screen("home")
+    object Search : Screen("search")
+    object Settings : Screen("settings")
+}
 
 class MainActivity : ComponentActivity() {
 
@@ -76,7 +99,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (locationRequired) startLocationUpdate();
+        if (locationRequired) startLocationUpdate()
     }
 
     override fun onPause() {
@@ -92,7 +115,7 @@ class MainActivity : ComponentActivity() {
             val locationRequest = LocationRequest.Builder(
                 Priority.PRIORITY_HIGH_ACCURACY, 100
             )
-            .setWaitForAccurateLocation(false)
+                .setWaitForAccurateLocation(false)
                 .setMinUpdateIntervalMillis(3000)
                 .setMaxUpdateDelayMillis(100)
                 .build()
@@ -108,38 +131,92 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         initLocationClient()
-
         initViewModel()
 
         setContent {
-
-            // this will save our current location
-            var currentLocation by remember {
-                mutableStateOf(MyLatLng(0.0,0.0))
-            }
-
-            //Implement location callback
-            locationCallback = object : LocationCallback() {
-                override fun onLocationResult(p0: LocationResult) {
-                    super.onLocationResult(p0)
-                    for (location in p0.locations) {
-                        currentLocation = MyLatLng(
-                            location.latitude,
-                            location.longitude
-                        )
-                    }
-
-
-                }
-            }
-
             SkyCastTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LocationScreen(this@MainActivity, currentLocation)
+                    AppNavigation(this@MainActivity)
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun AppNavigation(context: Context) {
+        val navController = rememberNavController()
+        var currentLocation by remember { mutableStateOf(MyLatLng(0.0, 0.0)) }
+
+        // Implement location callback
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(p0: LocationResult) {
+                super.onLocationResult(p0)
+                for (location in p0.locations) {
+                    currentLocation = MyLatLng(
+                        location.latitude,
+                        location.longitude
+                    )
+                }
+            }
+        }
+
+        Scaffold(
+            bottomBar = {
+                NavigationBar {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
+
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
+                        label = { Text("Home") },
+                        selected = currentRoute == Screen.Home.route,
+                        onClick = {
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(Screen.Home.route) { inclusive = true }
+                            }
+                        }
+                    )
+
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
+                        label = { Text("Search") },
+                        selected = currentRoute == Screen.Search.route,
+                        onClick = {
+                            navController.navigate(Screen.Search.route) {
+                                popUpTo(Screen.Home.route) { saveState = true }
+                            }
+                        }
+                    )
+
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
+                        label = { Text("Settings") },
+                        selected = currentRoute == Screen.Settings.route,
+                        onClick = {
+                            navController.navigate(Screen.Settings.route) {
+                                popUpTo(Screen.Home.route) { saveState = true }
+                            }
+                        }
+                    )
+                }
+            }
+        ) { innerPadding ->
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
+                composable(Screen.Home.route) {
+                    LocationScreen(context, currentLocation)
+                }
+                composable(Screen.Search.route) {
+                    SearchScreen(context, mainViewModel)
+                }
+                composable(Screen.Settings.route) {
+                    SettingsScreen()
                 }
             }
         }
@@ -161,16 +238,15 @@ class MainActivity : ComponentActivity() {
         // request run time permission
         val launcherMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissionMap->
-            val areGranted = permissionMap.values.reduce{
-                accepted, next -> accepted && next
+        ) { permissionMap ->
+            val areGranted = permissionMap.values.reduce { accepted, next ->
+                accepted && next
             }
-            if (areGranted){
-                locationRequired = true;
-                startLocationUpdate();
+            if (areGranted) {
+                locationRequired = true
+                startLocationUpdate()
                 Toast.makeText(context, "PERMISSION GRANTED", Toast.LENGTH_SHORT).show()
-            }
-            else{
+            } else {
                 Toast.makeText(context, "PERMISSION DENIED", Toast.LENGTH_SHORT).show()
             }
         }
@@ -186,13 +262,15 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(key1 = currentLocation, block = {
             coroutineScope {
-                if(permissions.all{
-                    ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
-                }){
+                if (permissions.all {
+                        ContextCompat.checkSelfPermission(
+                            context,
+                            it
+                        ) == PackageManager.PERMISSION_GRANTED
+                    }) {
                     // if permission accepted
                     startLocationUpdate()
-                }
-                else {
+                } else {
                     launcherMultiplePermissions.launch(permissions)
                 }
             }
@@ -202,24 +280,23 @@ class MainActivity : ComponentActivity() {
             fetchWeatherInformation(mainViewModel, currentLocation)
         })
 
-        val gradient = Brush.linearGradient(
-            colors = listOf(Color(colorBg1),Color(colorBg2)),
-            start = Offset(1000f,-1000f),
-            end = Offset(1000f, -1000f)
-        )
-        
+//        val gradient = Brush.linearGradient(
+//            colors = listOf(Color(colorBg1), Color(colorBg2)),
+//            start = Offset(1000f, -1000f),
+//            end = Offset(1000f, -1000f)
+//        )
+
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(gradient),
+                .fillMaxSize(),
+//                .background(gradient),
             contentAlignment = Alignment.TopEnd
-
-        ){
+        ) {
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
             val marginTop = screenHeight * 0.1f // I want margin top by 20% height
             val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
 
-            Column (
+            Column(
                 modifier = Modifier
                     .verticalScroll(rememberScrollState())
                     .layout { measurable, constraints ->
@@ -232,11 +309,9 @@ class MainActivity : ComponentActivity() {
                             placeable.placeRelative(0, marginTopPx.toInt())
                         }
                     },
-
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
-
-            ){
+            ) {
                 when (mainViewModel.state) {
                     STATE.LOADING -> {
                         LoadingSection()
@@ -257,20 +332,15 @@ class MainActivity : ComponentActivity() {
                     fetchWeatherInformation(mainViewModel, currentLocation)
                 },
                 modifier = Modifier.padding(bottom = 16.dp)
-
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
-
             }
-
-
         }
     }
 
-
     @Composable
     fun ErrorSection(errorMessage: String) {
-        return Column(
+        Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -281,7 +351,7 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun LoadingSection() {
-        return Column(
+        Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -296,4 +366,212 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun SearchScreen(context: Context, viewModel: MainViewModel) {
+    var locationQuery by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
+//    val gradient = Brush.linearGradient(
+//        colors = listOf(Color(colorBg1), Color(colorBg2)),
+//        start = Offset(1000f, -1000f),
+//        end = Offset(1000f, -1000f)
+//    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+//            .background(gradient),
+        contentAlignment = Alignment.TopEnd
+    ) {
+        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        val marginTop = screenHeight * 0.1f
+        val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
+
+        Column(
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(
+                        placeable.width,
+                        placeable.height + marginTopPx.toInt()
+                    ) {
+                        placeable.placeRelative(0, marginTopPx.toInt())
+                    }
+                },
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Search Section
+            OutlinedTextField(
+                value = locationQuery,
+                onValueChange = { locationQuery = it },
+                label = { Text("Enter city name (e.g., London)") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = Color.White)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    if (locationQuery.isNotBlank()) {
+                        isLoading = true
+                        viewModel.getWeatherByLocationName(context, locationQuery)
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                enabled = !isLoading && locationQuery.isNotBlank()
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(20.dp))
+                } else {
+                    Text("Search")
+                }
+            }
+
+            when (viewModel.state) {
+                STATE.LOADING -> {
+                    if (isLoading) {
+                        LoadingSection()
+                    }
+                }
+                STATE.FAILED -> {
+                    ErrorSection(viewModel.errorMessage)
+                }
+                STATE.SUCCESS -> {
+                    // Show weather and forecast data if available
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        if (viewModel.weatherResponse.name?.isNotEmpty() == true) {
+                            WeatherSection(viewModel.weatherResponse)
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        if (viewModel.forecastResponse.list?.isNotEmpty() == true) {
+                            ForecastSection(viewModel.forecastResponse)
+                        }
+                    }
+                }
+            }
+        }
+
+        // Observe viewModel state changes
+        LaunchedEffect(viewModel.state) {
+            if (viewModel.state == STATE.SUCCESS) {
+                isLoading = false
+            } else if (viewModel.state == STATE.FAILED) {
+                isLoading = false
+                Toast.makeText(context, viewModel.errorMessage, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        // Refresh button
+        if (viewModel.state == STATE.SUCCESS) {
+            FloatingActionButton(
+                onClick = {
+                    if (locationQuery.isNotBlank()) {
+                        isLoading = true
+                        viewModel.getWeatherByLocationName(context, locationQuery)
+                    }
+                },
+                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
+            ) {
+                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+            }
+        }
+    }
+}
+
+@Composable
+fun ErrorSection(errorMessage: String) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = errorMessage, color = Color.White)
+    }
+}
+
+@Composable
+fun LoadingSection() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator(color = Color.White)
+    }
+}
+
+
+@Composable
+fun WeatherInfoItem(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = Color.White.copy(alpha = 0.7f)
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.titleMedium,
+            color = Color.White
+        )
+    }
+}
+
+@Composable
+fun SettingsScreen() {
+    var temperatureUnit by remember { mutableStateOf("Celsius") }
+    var notificationEnabled by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        Text("Settings", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text("Temperature Unit", style = MaterialTheme.typography.titleMedium)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            RadioButton(
+                selected = temperatureUnit == "Celsius",
+                onClick = { temperatureUnit = "Celsius" }
+            )
+            Text("Celsius", modifier = Modifier.padding(top = 12.dp))
+
+            RadioButton(
+                selected = temperatureUnit == "Fahrenheit",
+                onClick = { temperatureUnit = "Fahrenheit" }
+            )
+            Text("Fahrenheit", modifier = Modifier.padding(top = 12.dp))
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text("Notifications", style = MaterialTheme.typography.titleMedium)
+            Switch(
+                checked = notificationEnabled,
+                onCheckedChange = { notificationEnabled = it }
+            )
+        }
+    }
+}

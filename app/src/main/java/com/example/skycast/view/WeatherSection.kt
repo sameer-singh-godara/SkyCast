@@ -46,7 +46,7 @@ fun WeatherSection(weatherResponse: WeatherResult) {
     var subTitle = ""
     val dateVal = (weatherResponse.dt ?: 0)
     subTitle = if (dateVal == 0) LOADING
-    else timestampToHumanDate(dateVal.toLong(), "dd-MM-yyyy")
+    else timestampToHumanDate(dateVal.toLong(), "HH:mm, dd-MM-yyyy")
 
     // icon
     var icon = ""
@@ -83,7 +83,7 @@ fun WeatherSection(weatherResponse: WeatherResult) {
 
     WeatherTitleSection(text = title, subText = subTitle, fontSize = 30.sp)
     WeatherImage(icon = icon)
-    WeatherTitleSection(text = temp, subText = discription, fontSize = 60.sp)
+    WeatherTitleSection(text = temp, subText = discription, fontSize = 40.sp)
 
     Row (
         modifier = Modifier.fillMaxWidth()
@@ -101,7 +101,7 @@ fun WeatherSection(weatherResponse: WeatherResult) {
 @Composable
 fun WeatherInfo(icon: FaIconType.SolidIcon, text: String) {
     Column {
-        FaIcon(faIcon = icon, size = 48.dp, tint = Color.White)
+        FaIcon(faIcon = icon, size = 36.dp, tint = Color.White)
         Text(text, fontSize = 24.sp, color = Color.White)
     }
 }
@@ -112,8 +112,8 @@ fun WeatherImage(icon: String) {
     AsyncImage(
         model = buildIcon(icon), contentDescription = icon,
         modifier = Modifier
-            .width(200.dp)
-            .height(200.dp),
+            .width(150.dp)
+            .height(150.dp),
         contentScale = ContentScale.FillBounds
     )
 }
@@ -125,7 +125,7 @@ fun WeatherTitleSection(text: String, subText: String, fontSize: TextUnit) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text, fontSize = fontSize, color = Color.White, fontWeight = FontWeight.Bold)
+        Text(text, fontSize = fontSize, color = Color.White)
         Text(subText, fontSize = 14.sp, color = Color.White)
     }
 }

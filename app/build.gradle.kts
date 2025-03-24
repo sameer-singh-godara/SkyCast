@@ -61,6 +61,7 @@ dependencies {
 
     // Location
     implementation(libs.play.services.location)
+    implementation("com.google.android.gms:play-services-maps:19.1.0")
 
     // API
     implementation(libs.gson)
@@ -77,5 +78,16 @@ dependencies {
 
     // Full layout without Status Bar
     implementation(libs.accompanist.systemuicontroller)
+
+    // Navigation Compose
+    implementation("androidx.navigation:navigation-compose:2.8.9")
+
+    // ViewModel Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+
+    // Material 3 (for newer components)
+    implementation("androidx.compose.material3:material3:1.3.1")
+
+
 
 }
