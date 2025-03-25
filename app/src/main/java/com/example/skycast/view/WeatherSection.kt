@@ -3,6 +3,7 @@ package com.example.skycast.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,114 +32,149 @@ import com.guru.fontawesomecomposelib.FaIcons
 
 @Composable
 fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier) {
-    // title section
-    var title = ""
-    if (!weatherResponse.name.isNullOrEmpty()) {
-        weatherResponse.name?.let { title = it }
-    } else {
-        weatherResponse.coord?.let { title = "${it.lat}/${it.lon}" }
-    }
+    // Location name
+    val locationName = weatherResponse.name ?: weatherResponse.coord?.let {
+        "${it.lat}/${it.lon}"
+    } ?: "Unknown Location"
 
-    // sub title section
-    var subTitle = ""
-    val dateVal = (weatherResponse.dt ?: 0)
-    subTitle = if (dateVal == 0) LOADING
-    else timestampToHumanDate(dateVal.toLong(), "HH:mm, dd-MM-yyyy")
+    // Date and time formatting
+    val formattedDateTime = weatherResponse.dt?.let { timestamp ->
+        timestampToHumanDate(timestamp.toLong(), "EEE, MMM d • hh:mm a")
+    } ?: LOADING
 
-    // icon
-    var icon = ""
-    var description = ""
-    weatherResponse.weather?.let {
-        if (it.isNotEmpty()) {
-            description = it[0].description ?: LOADING
-            icon = it[0].icon ?: LOADING
-        }
-    }
+    // Weather description and icon
+    val weatherDescription = weatherResponse.weather?.firstOrNull()?.description ?: LOADING
+    val weatherIcon = weatherResponse.weather?.firstOrNull()?.icon ?: LOADING
 
-    // temp
-    var temp = weatherResponse.main?.temp?.let { "${it}°C" } ?: LOADING
-
-    // Weather info
-    val wind = weatherResponse.wind?.speed?.toString() ?: LOADING
-    val clouds = weatherResponse.clouds?.all?.toString() ?: LOADING
-    val snow = weatherResponse.snow?.d1h?.toString() ?: NA
+    // Temperature and other info
+    val temperature = weatherResponse.main?.temp?.let {"%.1f".format(it) + "°C" } ?: LOADING
+    val windSpeed = weatherResponse.wind?.speed?.let { "${it.toInt()} m/s" } ?: LOADING
+    val cloudiness = weatherResponse.clouds?.all?.let { "$it%" } ?: LOADING
+    val snowVolume = weatherResponse.snow?.d1h?.let { "${it}mm" } ?: NA
 
     Column(
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Location and Date/Time
         WeatherTitleSection(
-            text = title,
-            fontSize = 30.sp
+            title = locationName,
+            subtitle = formattedDateTime,
+            titleFontSize = 24.sp,
+            subtitleFontSize = 16.sp
         )
 
-        WeatherImage(icon = icon)
+        Spacer(modifier = Modifier.height(8.dp))
 
+        // Weather Icon
+        WeatherImage(icon = weatherIcon)
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Temperature and Description
         WeatherTitleSection(
-            text = temp,
-            fontSize = 30.sp
+            title = temperature,
+            subtitle = weatherDescription.replaceFirstChar { it.uppercase() },
+            titleFontSize = 48.sp,
+            subtitleFontSize = 16.sp
         )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceAround
-        ) {
-            WeatherInfo(icon = FaIcons.Wind, text = wind)
-            WeatherInfo(icon = FaIcons.Cloud, text = clouds)
-            WeatherInfo(icon = FaIcons.Snowflake, text = snow)
-        }
-    }
-}
+        Spacer(modifier = Modifier.height(16.dp))
 
-@Composable
-fun WeatherInfo(icon: FaIconType.SolidIcon, text: String) {
-    Column(
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        FaIcon(
-            faIcon = icon,
-            size = 36.dp,
-            tint = MaterialTheme.colorScheme.onBackground
-        )
-        Text(
-            text = text,
-            fontSize = 24.sp,
-            color = MaterialTheme.colorScheme.onBackground
+        // Weather Stats
+        WeatherStatsRow(
+            windSpeed = windSpeed,
+            cloudiness = cloudiness,
+            snowVolume = snowVolume
         )
     }
-}
-
-@Composable
-fun WeatherImage(icon: String) {
-    AsyncImage(
-        model = buildIcon(icon),
-        contentDescription = icon,
-        modifier = Modifier
-            .width(150.dp)
-            .height(150.dp),
-        contentScale = ContentScale.FillBounds
-
-    )
 }
 
 @Composable
 fun WeatherTitleSection(
-    text: String,
-    fontSize: TextUnit
+    title: String,
+    subtitle: String,
+    titleFontSize: TextUnit,
+    subtitleFontSize: TextUnit,
+    modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.Center,
+        modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = text,
-            fontSize = fontSize,
+            text = title,
+            fontSize = titleFontSize,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
+        Text(
+            text = subtitle,
+            fontSize = subtitleFontSize,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
+}
+
+@Composable
+fun WeatherStatsRow(
+    windSpeed: String,
+    cloudiness: String,
+    snowVolume: String,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        WeatherStatItem(icon = FaIcons.Wind, value = windSpeed, label = "Wind")
+        WeatherStatItem(icon = FaIcons.Cloud, value = cloudiness, label = "Clouds")
+        WeatherStatItem(icon = FaIcons.Snowflake, value = snowVolume, label = "Snow")
+    }
+}
+
+@Composable
+fun WeatherStatItem(
+    icon: FaIconType.SolidIcon,
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        FaIcon(
+            faIcon = icon,
+            size = 24.dp,
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = value,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onBackground,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        )
+    }
+}
+
+@Composable
+fun WeatherImage(icon: String, modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = buildIcon(icon),
+        contentDescription = "Weather icon",
+        modifier = modifier
+            .width(120.dp)
+            .height(120.dp),
+        contentScale = ContentScale.Fit
+    )
 }
