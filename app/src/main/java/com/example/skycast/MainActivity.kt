@@ -349,7 +349,7 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = errorMessage, color = Color.White)
+            Text(text = errorMessage)
         }
     }
 
@@ -360,7 +360,7 @@ class MainActivity : ComponentActivity() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CircularProgressIndicator(color = Color.White)
+            CircularProgressIndicator()
         }
     }
 
@@ -374,17 +374,10 @@ class MainActivity : ComponentActivity() {
 fun SearchScreen(context: Context, viewModel: MainViewModel) {
     var locationQuery by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-
-//    val gradient = Brush.linearGradient(
-//        colors = listOf(Color(colorBg1), Color(colorBg2)),
-//        start = Offset(1000f, -1000f),
-//        end = Offset(1000f, -1000f)
-//    )
+    var showResults by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier
-            .fillMaxSize(),
-//            .background(gradient),
+        modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.TopEnd
     ) {
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -440,6 +433,7 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
                 onClick = {
                     if (locationQuery.isNotBlank()) {
                         isLoading = true
+                        showResults = false
                         viewModel.getWeatherByLocationName(context, locationQuery)
                     }
                 },
@@ -450,7 +444,6 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        color = Color.White,
                         modifier = Modifier.size(20.dp))
                 } else {
                     Text("Search")
@@ -467,17 +460,19 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
                     ErrorSection(viewModel.errorMessage)
                 }
                 STATE.SUCCESS -> {
-                    // Show weather and forecast data if available
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        if (viewModel.weatherResponse.name?.isNotEmpty() == true) {
-                            WeatherSection(viewModel.weatherResponse)
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                        if (viewModel.forecastResponse.list?.isNotEmpty() == true) {
-                            ForecastSection(viewModel.forecastResponse)
+                    // Only show results if we've performed a search
+                    if (showResults) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (viewModel.weatherResponse.name?.isNotEmpty() == true) {
+                                WeatherSection(viewModel.weatherResponse)
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                            if (viewModel.forecastResponse.list?.isNotEmpty() == true) {
+                                ForecastSection(viewModel.forecastResponse)
+                            }
                         }
                     }
                 }
@@ -488,24 +483,11 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
         LaunchedEffect(viewModel.state) {
             if (viewModel.state == STATE.SUCCESS) {
                 isLoading = false
+                showResults = true
             } else if (viewModel.state == STATE.FAILED) {
                 isLoading = false
+                showResults = false
                 Toast.makeText(context, viewModel.errorMessage, Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Refresh button
-        if (viewModel.state == STATE.SUCCESS) {
-            FloatingActionButton(
-                onClick = {
-                    if (locationQuery.isNotBlank()) {
-                        isLoading = true
-                        viewModel.getWeatherByLocationName(context, locationQuery)
-                    }
-                },
-                modifier = Modifier.padding(bottom = 16.dp, end = 16.dp)
-            ) {
-                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
             }
         }
     }
@@ -518,7 +500,7 @@ fun ErrorSection(errorMessage: String) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = errorMessage, color = Color.White)
+        Text(text = errorMessage)
     }
 }
 
@@ -529,7 +511,7 @@ fun LoadingSection() {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CircularProgressIndicator(color = Color.White)
+        CircularProgressIndicator()
     }
 }
 

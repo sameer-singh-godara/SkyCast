@@ -60,7 +60,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun getWeatherByLocation(latLng: MyLatLng) {
-        Log.d("Weather App", "API Called!!!")
+        Log.d("Weather App", "API Called by Coordinates!!!")
         viewModelScope.launch {
             state = STATE.LOADING
             val apiService = RetrofitClient.getInstance()
@@ -109,6 +109,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun getWeatherByLocationName(context: Context, locationName: String) {
+        Log.d("Weather App", "API Called by Name!!!")
         viewModelScope.launch {
             state = STATE.LOADING
             errorMessage = ""
