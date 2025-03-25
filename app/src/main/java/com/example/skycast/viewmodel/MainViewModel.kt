@@ -31,6 +31,34 @@ class MainViewModel : ViewModel() {
     var forecastResponse: ForecastResult by mutableStateOf(ForecastResult())
     var errorMessage: String by mutableStateOf(value = "")
 
+    // Theme mode
+    var darkMode by mutableStateOf(false)
+        private set
+
+    // Font size (small=0.8, medium=1.0, large=1.2)
+    var fontSizeScale by mutableStateOf(1.0f)
+        private set
+
+    fun toggleDarkMode() {
+        darkMode = !darkMode
+    }
+
+    fun increaseFontSize() {
+        fontSizeScale = when {
+            fontSizeScale < 0.8f -> 0.8f
+            fontSizeScale < 1.0f -> 1.0f
+            else -> 1.2f
+        }
+    }
+
+    fun decreaseFontSize() {
+        fontSizeScale = when {
+            fontSizeScale > 1.0f -> 1.0f
+            fontSizeScale > 0.8f -> 0.8f
+            else -> 0.8f
+        }
+    }
+
     fun getWeatherByLocation(latLng: MyLatLng) {
         Log.d("Weather App", "API Called!!!")
         viewModelScope.launch {

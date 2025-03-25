@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +35,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -50,8 +48,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -59,17 +55,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.skycast.constant.Const.Companion.colorBg1
-import com.example.skycast.constant.Const.Companion.colorBg2
 import com.example.skycast.constant.Const.Companion.permissions
 import com.example.skycast.model.MyLatLng
-import com.example.skycast.model.forecast.ForecastResult
-import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.ui.theme.SkyCastTheme
 import com.example.skycast.view.ForecastSection
 import com.example.skycast.view.WeatherSection
@@ -134,19 +126,25 @@ class MainActivity : ComponentActivity() {
         initViewModel()
 
         setContent {
-            SkyCastTheme {
+            val viewModel: MainViewModel = viewModel()
+
+            SkyCastTheme(
+                darkTheme = viewModel.darkMode,
+                fontScale = viewModel.fontSizeScale
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation(this@MainActivity)
+                    AppNavigation(this@MainActivity, viewModel)
                 }
             }
         }
     }
 
+
     @Composable
-    private fun AppNavigation(context: Context) {
+    private fun AppNavigation(context: Context, viewModel: MainViewModel) {
         val navController = rememberNavController()
         var currentLocation by remember { mutableStateOf(MyLatLng(0.0, 0.0)) }
 
@@ -210,13 +208,13 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier.padding(innerPadding)
             ) {
                 composable(Screen.Home.route) {
-                    LocationScreen(context, currentLocation)
+                    LocationScreen(context, currentLocation, viewModel)
                 }
                 composable(Screen.Search.route) {
-                    SearchScreen(context, mainViewModel)
+                    SearchScreen(context, viewModel)
                 }
                 composable(Screen.Settings.route) {
-                    SettingsScreen()
+                    SettingsScreen(viewModel)
                 }
             }
         }
@@ -234,7 +232,11 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    private fun LocationScreen(context: Context, currentLocation: MyLatLng) {
+    private fun LocationScreen(
+        context: Context,
+        currentLocation: MyLatLng,
+        viewModel: MainViewModel
+    ) {
         // request run time permission
         val launcherMultiplePermissions = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions()
@@ -530,47 +532,71 @@ fun WeatherInfoItem(label: String, value: String) {
 }
 
 @Composable
-fun SettingsScreen() {
-    var temperatureUnit by remember { mutableStateOf("Celsius") }
-    var notificationEnabled by remember { mutableStateOf(true) }
-
+fun SettingsScreen(viewModel: MainViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineMedium)
+        Text(
+            "Settings",
+            style = MaterialTheme.typography.headlineMedium,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+
+        // Font Size Settings
+        Text("Font Size", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { viewModel.decreaseFontSize() },
+                enabled = viewModel.fontSizeScale > 0.8f
+            ) {
+                Text("Decrease")
+            }
+
+            Text(
+                when {
+                    viewModel.fontSizeScale <= 0.8f -> "Small"
+                    viewModel.fontSizeScale <= 1.0f -> "Medium"
+                    else -> "Large"
+                },
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Button(
+                onClick = { viewModel.increaseFontSize() },
+                enabled = viewModel.fontSizeScale < 1.2f
+            ) {
+                Text("Increase")
+            }
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        Text("Temperature Unit", style = MaterialTheme.typography.titleMedium)
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            RadioButton(
-                selected = temperatureUnit == "Celsius",
-                onClick = { temperatureUnit = "Celsius" }
-            )
-            Text("Celsius", modifier = Modifier.padding(top = 12.dp))
-
-            RadioButton(
-                selected = temperatureUnit == "Fahrenheit",
-                onClick = { temperatureUnit = "Fahrenheit" }
-            )
-            Text("Fahrenheit", modifier = Modifier.padding(top = 12.dp))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
+        // Theme Mode Setting
+        Text("Appearance", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Notifications", style = MaterialTheme.typography.titleMedium)
+            Text(
+                if (viewModel.darkMode) "Dark Mode" else "Light Mode",
+                style = MaterialTheme.typography.titleLarge
+            )
+
             Switch(
-                checked = notificationEnabled,
-                onCheckedChange = { notificationEnabled = it }
+                checked = viewModel.darkMode,
+                onCheckedChange = { viewModel.toggleDarkMode() }
             )
         }
     }

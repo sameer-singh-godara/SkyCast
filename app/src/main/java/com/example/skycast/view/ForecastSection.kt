@@ -12,13 +12,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.skycast.constant.Const.Companion.NA
 import com.example.skycast.constant.Const.Companion.cardColor
@@ -27,43 +30,31 @@ import com.example.skycast.utils.Utils.Companion.buildIcon
 import com.example.skycast.utils.Utils.Companion.timestampToHumanDate
 
 @Composable
-fun ForecastSection(forecastResponse: ForecastResult) {
-    return Column(
-        modifier = Modifier.fillMaxSize(),
+fun ForecastSection(
+    forecastResponse: ForecastResult,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        forecastResponse.list?.let {
-            listForecast ->
-            if (listForecast!!.size > 0) {
+        forecastResponse.list?.let { listForecast ->
+            if (listForecast.isNotEmpty()) {
                 LazyRow(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(listForecast!!) {
-                        currentItem ->
-                        currentItem.let {
-                                item ->
-                            var temp = ""
-                            var icon = ""
-                            var time = ""
-                            item.main.let { main ->
-                                temp = if (main == null)  NA else "${main.temp}°C"
-                            }
-
-                            item.weather.let { weather ->
-                                icon = if (weather == null) NA else buildIcon(
-                                    weather[0].icon!!,
-                                    isBigSize = false
-                                )
-                            }
-
-                            item.dt.let { dateTime ->
-                                time = if (dateTime == null) NA
-                                else timestampToHumanDate(dateTime.toLong(), "EEE, HH:mm\ndd-MM-YYYY")
-                            }
-
-                            ForecastTile(temp = temp, image = icon, time = time)
-                        }
+                    items(listForecast) { item ->
+                        ForecastTile(
+                            temp = item.main?.temp?.let { "${it}°C" } ?: NA,
+                            image = item.weather?.firstOrNull()?.icon?.let {
+                                buildIcon(it, isBigSize = false)
+                            } ?: NA,
+                            time = item.dt?.let {
+                                timestampToHumanDate(it.toLong(), "EEE, HH:mm\ndd-MM-YYYY")
+                            } ?: NA
+                        )
                     }
                 }
             }
@@ -72,26 +63,51 @@ fun ForecastSection(forecastResponse: ForecastResult) {
 }
 
 @Composable
-fun ForecastTile(temp: String, image: Any, time: String) {
+fun ForecastTile(
+    temp: String,
+    image: Any,
+    time: String,
+    modifier: Modifier = Modifier
+) {
     Card(
-        modifier = Modifier.padding(10.dp)
-            .fillMaxWidth(),
+        modifier = modifier
+            .padding(10.dp)
+            .width(120.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color(cardColor).copy(alpha = 0.4f),
-            contentColor = Color.White
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
         )
     ) {
         Column(
-            modifier = Modifier.padding(25.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()  // Make column fill entire card
+                .padding(8.dp),  // Reduce padding for better space utilization
+            verticalArrangement = Arrangement.Center,  // Center vertically
+            horizontalAlignment = Alignment.CenterHorizontally  // Center horizontally
         ) {
-            Text(text = temp.ifEmpty { NA }, color = Color.White)
-            AsyncImage(model = image, contentDescription = image.toString(),
-                modifier = Modifier.width(60.dp).height(60.dp),
-                contentScale = ContentScale.FillBounds
+            Text(
+                text = temp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(bottom = 8.dp)  // Add spacing between elements
             )
-            Text(text = time.ifEmpty { NA }, color = Color.White)
+
+            AsyncImage(
+                model = image,
+                contentDescription = null,
+                modifier = Modifier
+                    .width(60.dp)
+                    .height(60.dp),
+                contentScale = ContentScale.Fit  // Changed to Fit for better image scaling
+            )
+
+            Text(
+                text = time,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 8.dp),  // Add spacing between elements
+                textAlign = TextAlign.Center  // Ensure text is centered for multi-line text
+            )
         }
     }
 }
