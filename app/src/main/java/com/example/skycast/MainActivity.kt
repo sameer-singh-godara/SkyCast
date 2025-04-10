@@ -10,7 +10,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +41,7 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -64,6 +64,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.skycast.constant.Const.Companion.permissions
 import com.example.skycast.model.MyLatLng
+import com.example.skycast.ui.theme.LocalFontScale
 import com.example.skycast.ui.theme.SkyCastTheme
 import com.example.skycast.view.ForecastSection
 import com.example.skycast.view.WeatherSection
@@ -130,20 +131,29 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: MainViewModel = viewModel()
 
-            SkyCastTheme(
-                darkTheme = viewModel.darkMode,
-                fontScale = viewModel.fontSizeScale
-            ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    AppNavigation(this@MainActivity, viewModel)
+            // Provide fontScale via CompositionLocal and trigger recomposition
+            CompositionLocalProvider(LocalFontScale provides viewModel.fontSizeScale) {
+                // Debug: Show toast when fontSizeScale changes
+                LaunchedEffect(viewModel.fontSizeScale) {
+                    Toast.makeText(this@MainActivity, "Font Scale: ${viewModel.fontSizeScale}", Toast.LENGTH_SHORT).show()
+                }
+
+                // Force recomposition when darkMode or fontSizeScale changes
+                LaunchedEffect(viewModel.darkMode, viewModel.fontSizeScale) {
+                    // This empty block ensures recomposition
+                }
+
+                SkyCastTheme(darkTheme = viewModel.darkMode) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        AppNavigation(this@MainActivity, viewModel)
+                    }
                 }
             }
         }
     }
-
 
     @Composable
     private fun AppNavigation(context: Context, viewModel: MainViewModel) {
@@ -284,16 +294,9 @@ class MainActivity : ComponentActivity() {
             fetchWeatherInformation(mainViewModel, currentLocation)
         })
 
-//        val gradient = Brush.linearGradient(
-//            colors = listOf(Color(colorBg1), Color(colorBg2)),
-//            start = Offset(1000f, -1000f),
-//            end = Offset(1000f, -1000f)
-//        )
-
         Box(
             modifier = Modifier
                 .fillMaxSize(),
-//                .background(gradient),
             contentAlignment = Alignment.TopEnd
         ) {
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
@@ -444,7 +447,8 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
             ) {
                 if (isLoading) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp))
+                        modifier = Modifier.size(20.dp)
+                    )
                 } else {
                     Text("Search")
                 }
@@ -514,7 +518,6 @@ fun LoadingSection() {
         CircularProgressIndicator()
     }
 }
-
 
 @Composable
 fun WeatherInfoItem(label: String, value: String) {

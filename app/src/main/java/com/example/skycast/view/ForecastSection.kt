@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.skycast.constant.Const.Companion.NA
 import com.example.skycast.model.forecast.ForecastResult
@@ -78,16 +77,16 @@ fun ForecastTile(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()  // Make column fill entire card
-                .padding(8.dp),  // Reduce padding for better space utilization
-            verticalArrangement = Arrangement.Center,  // Center vertically
-            horizontalAlignment = Alignment.CenterHorizontally  // Center horizontally
+                .fillMaxSize()
+                .padding(8.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = temp,
+                style = MaterialTheme.typography.bodyLarge, // Use typography
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(bottom = 8.dp)  // Add spacing between elements
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             AsyncImage(
@@ -96,15 +95,15 @@ fun ForecastTile(
                 modifier = Modifier
                     .width(60.dp)
                     .height(60.dp),
-                contentScale = ContentScale.Fit  // Changed to Fit for better image scaling
+                contentScale = ContentScale.Fit
             )
 
             Text(
                 text = time,
+                style = MaterialTheme.typography.bodySmall, // Use typography
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                fontSize = 12.sp,
-                modifier = Modifier.padding(top = 8.dp),  // Add spacing between elements
-                textAlign = TextAlign.Center  // Ensure text is centered for multi-line text
+                modifier = Modifier.padding(top = 8.dp),
+                textAlign = TextAlign.Center
             )
         }
     }

@@ -17,9 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.skycast.constant.Const.Companion.LOADING
 import com.example.skycast.constant.Const.Companion.NA
@@ -47,7 +45,7 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
     val weatherIcon = weatherResponse.weather?.firstOrNull()?.icon ?: LOADING
 
     // Temperature and other info
-    val temperature = weatherResponse.main?.temp?.let {"%.1f".format(it) + "°C" } ?: LOADING
+    val temperature = weatherResponse.main?.temp?.let { "%.1f".format(it) + "°C" } ?: LOADING
     val windSpeed = weatherResponse.wind?.speed?.let { "${it.toInt()} m/s" } ?: LOADING
     val cloudiness = weatherResponse.clouds?.all?.let { "$it%" } ?: LOADING
     val snowVolume = weatherResponse.snow?.d1h?.let { "${it}mm" } ?: NA
@@ -60,8 +58,8 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
         WeatherTitleSection(
             title = locationName,
             subtitle = formattedDateTime,
-            titleFontSize = 24.sp,
-            subtitleFontSize = 16.sp
+            titleStyle = MaterialTheme.typography.headlineLarge, // Use typography
+            subtitleStyle = MaterialTheme.typography.bodyLarge // Use typography
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -75,8 +73,8 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
         WeatherTitleSection(
             title = temperature,
             subtitle = weatherDescription.replaceFirstChar { it.uppercase() },
-            titleFontSize = 48.sp,
-            subtitleFontSize = 16.sp
+            titleStyle = MaterialTheme.typography.displayLarge, // Use typography
+            subtitleStyle = MaterialTheme.typography.bodyLarge // Use typography
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -94,8 +92,8 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
 fun WeatherTitleSection(
     title: String,
     subtitle: String,
-    titleFontSize: TextUnit,
-    subtitleFontSize: TextUnit,
+    titleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.headlineLarge,
+    subtitleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -104,13 +102,13 @@ fun WeatherTitleSection(
     ) {
         Text(
             text = title,
-            fontSize = titleFontSize,
+            style = titleStyle, // Use typography style
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold
         )
         Text(
             text = subtitle,
-            fontSize = subtitleFontSize,
+            style = subtitleStyle, // Use typography style
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             modifier = Modifier.padding(top = 4.dp)
         )
@@ -154,14 +152,14 @@ fun WeatherStatItem(
         )
         Text(
             text = value,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.bodyMedium, // Use typography
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 4.dp)
         )
         Text(
             text = label,
-            fontSize = 12.sp,
+            style = MaterialTheme.typography.bodySmall, // Use typography
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
     }
