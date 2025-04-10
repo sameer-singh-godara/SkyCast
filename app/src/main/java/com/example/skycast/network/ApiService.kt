@@ -6,7 +6,7 @@ import com.example.skycast.model.weather.WeatherResult
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface IApiService {
+interface ApiService {
     @GET("weather")
     suspend fun getWeather(
         @Query("lat") lat: Double = 0.0,

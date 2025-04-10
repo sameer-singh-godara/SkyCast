@@ -9,11 +9,6 @@ class Const {
 
         const val openWeatherMapApiKey = "df1e3352cca31d136a4aba831b3185ff"
 
-        const val colorBg1 = 0xff08203e
-        const val colorBg2 = 0xff557c93
-        const val cardColor = 0xff333639
-
-
         const val LOADING = "Loading..."
         const val NA = "N/A"
 

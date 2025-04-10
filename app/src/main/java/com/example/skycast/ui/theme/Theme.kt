@@ -62,7 +62,45 @@ fun SkyCastTheme(
         displayMedium = MaterialTheme.typography.displayMedium.copy(
             fontSize = MaterialTheme.typography.displayMedium.fontSize * fontScale
         ),
-        // ... scale all text styles similarly
+        displaySmall = MaterialTheme.typography.displaySmall.copy(
+            fontSize = MaterialTheme.typography.displaySmall.fontSize * fontScale
+        ),
+        headlineLarge = MaterialTheme.typography.headlineLarge.copy(
+            fontSize = MaterialTheme.typography.headlineLarge.fontSize * fontScale
+        ),
+        headlineMedium = MaterialTheme.typography.headlineMedium.copy(
+            fontSize = MaterialTheme.typography.headlineMedium.fontSize * fontScale
+        ),
+        headlineSmall = MaterialTheme.typography.headlineSmall.copy(
+            fontSize = MaterialTheme.typography.headlineSmall.fontSize * fontScale
+        ),
+        titleLarge = MaterialTheme.typography.titleLarge.copy(
+            fontSize = MaterialTheme.typography.titleLarge.fontSize * fontScale
+        ),
+        titleMedium = MaterialTheme.typography.titleMedium.copy(
+            fontSize = MaterialTheme.typography.titleMedium.fontSize * fontScale
+        ),
+        titleSmall = MaterialTheme.typography.titleSmall.copy(
+            fontSize = MaterialTheme.typography.titleSmall.fontSize * fontScale
+        ),
+        bodyLarge = MaterialTheme.typography.bodyLarge.copy(
+            fontSize = MaterialTheme.typography.bodyLarge.fontSize * fontScale
+        ),
+        bodyMedium = MaterialTheme.typography.bodyMedium.copy(
+            fontSize = MaterialTheme.typography.bodyMedium.fontSize * fontScale
+        ),
+        bodySmall = MaterialTheme.typography.bodySmall.copy(
+            fontSize = MaterialTheme.typography.bodySmall.fontSize * fontScale
+        ),
+        labelLarge = MaterialTheme.typography.labelLarge.copy(
+            fontSize = MaterialTheme.typography.labelLarge.fontSize * fontScale
+        ),
+        labelMedium = MaterialTheme.typography.labelMedium.copy(
+            fontSize = MaterialTheme.typography.labelMedium.fontSize * fontScale
+        ),
+        labelSmall = MaterialTheme.typography.labelSmall.copy(
+            fontSize = MaterialTheme.typography.labelSmall.fontSize * fontScale
+        )
     )
 
     MaterialTheme(

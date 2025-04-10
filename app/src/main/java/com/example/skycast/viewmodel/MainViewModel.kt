@@ -49,6 +49,8 @@ class MainViewModel : ViewModel() {
             fontSizeScale < 1.0f -> 1.0f
             else -> 1.2f
         }
+        // Optional: Add log or state change notification
+        Log.d("FontSize", "Font size increased to $fontSizeScale")
     }
 
     fun decreaseFontSize() {
@@ -57,6 +59,8 @@ class MainViewModel : ViewModel() {
             fontSizeScale > 0.8f -> 0.8f
             else -> 0.8f
         }
+        // Optional: Add log or state change notification
+        Log.d("FontSize", "Font size decreased to $fontSizeScale")
     }
 
     fun getWeatherByLocation(latLng: MyLatLng) {
