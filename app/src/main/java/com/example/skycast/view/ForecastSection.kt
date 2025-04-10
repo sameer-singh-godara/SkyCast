@@ -77,7 +77,7 @@ fun ForecastTile(
     Card(
         modifier = modifier
             .padding(10.dp)
-            .width(120.dp),
+            .width(130.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
