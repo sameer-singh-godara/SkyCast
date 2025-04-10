@@ -132,10 +132,11 @@ class MainActivity : ComponentActivity() {
 
             // Provide fontScale via CompositionLocal and trigger recomposition
             CompositionLocalProvider(LocalFontScale provides viewModel.fontSizeScale) {
+
                 // Debug: Show toast when fontSizeScale changes
-                LaunchedEffect(viewModel.fontSizeScale) {
-                    Toast.makeText(this@MainActivity, "Font Scale: ${viewModel.fontSizeScale}", Toast.LENGTH_SHORT).show()
-                }
+//                LaunchedEffect(viewModel.fontSizeScale) {
+//                    Toast.makeText(this@MainActivity, "Font Scale: ${viewModel.fontSizeScale}", Toast.LENGTH_SHORT).show()
+//                }
 
                 // Force recomposition when darkMode or fontSizeScale changes
                 LaunchedEffect(viewModel.darkMode, viewModel.fontSizeScale) {
