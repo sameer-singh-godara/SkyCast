@@ -50,7 +50,11 @@ fun ForecastSection(
                             } ?: NA,
                             time = item.dt?.let {
                                 timestampToHumanDate(it.toLong(), "EEE, HH:mm\ndd-MM-YYYY")
-                            } ?: NA
+                            } ?: NA,
+                            feelsLike = item.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: NA,
+                            pop = item.pop?.let { "${(it * 100).toInt()}%" } ?: NA,
+                            windSpeed = item.wind?.speed?.let { "${it.toInt()} m/s" } ?: NA,
+                            cloudiness = item.clouds?.all?.let { "$it%" } ?: NA
                         )
                     }
                 }
@@ -64,6 +68,10 @@ fun ForecastTile(
     temp: String,
     image: Any,
     time: String,
+    feelsLike: String,
+    pop: String,
+    windSpeed: String,
+    cloudiness: String,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -104,6 +112,30 @@ fun ForecastTile(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier.padding(top = 8.dp),
                 textAlign = TextAlign.Center
+            )
+            Text(
+                text = "Feels: $feelsLike",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                text = "Pop: $pop",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                text = "Wind: $windSpeed",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+            Text(
+                text = "Clouds: $cloudiness",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
     }

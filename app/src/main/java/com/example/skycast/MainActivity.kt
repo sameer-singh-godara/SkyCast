@@ -50,7 +50,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
@@ -159,6 +158,13 @@ class MainActivity : ComponentActivity() {
     private fun AppNavigation(context: Context, viewModel: MainViewModel) {
         val navController = rememberNavController()
         var currentLocation by remember { mutableStateOf(MyLatLng(0.0, 0.0)) }
+        val systemUiController = rememberSystemUiController()
+
+        // Ensure system bars are always visible
+        DisposableEffect(Unit) {
+            systemUiController.isSystemBarsVisible = true // Show system bars
+            onDispose { }
+        }
 
         // Implement location callback
         locationCallback = object : LocationCallback() {
@@ -265,15 +271,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val systemUiController = rememberSystemUiController()
-
-        DisposableEffect(key1 = true, effect = {
-            systemUiController.isSystemBarsVisible = false // hide the status bar
-            onDispose {
-                systemUiController.isSystemBarsVisible = true // show the status bar
-            }
-        })
-
+        // No DisposableEffect needed since system bars are managed at the root level
         LaunchedEffect(key1 = currentLocation, block = {
             coroutineScope {
                 if (permissions.all {
@@ -300,7 +298,7 @@ class MainActivity : ComponentActivity() {
             contentAlignment = Alignment.TopEnd
         ) {
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-            val marginTop = screenHeight * 0.1f // I want margin top by 20% height
+            val marginTop = screenHeight * 0.1f
             val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
 
             Column(
@@ -308,7 +306,6 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState())
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
-                        // define the layout for the child
                         layout(
                             placeable.width,
                             placeable.height + marginTopPx.toInt()
@@ -335,7 +332,6 @@ class MainActivity : ComponentActivity() {
 
             FloatingActionButton(
                 onClick = {
-                    // fetch API when location change
                     fetchWeatherInformation(mainViewModel, currentLocation)
                 },
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -378,6 +374,10 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
     var locationQuery by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var showResults by remember { mutableStateOf(false) }
+
+    val systemUiController = rememberSystemUiController()
+    // Remove DisposableEffect to keep system bars visible
+    // DisposableEffect(Unit) { ... } // Removed
 
     Box(
         modifier = Modifier.fillMaxSize(),
@@ -464,7 +464,6 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
                     ErrorSection(viewModel.errorMessage)
                 }
                 STATE.SUCCESS -> {
-                    // Only show results if we've performed a search
                     if (showResults) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -498,45 +497,11 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
 }
 
 @Composable
-fun ErrorSection(errorMessage: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = errorMessage)
-    }
-}
-
-@Composable
-fun LoadingSection() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-fun WeatherInfoItem(label: String, value: String) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.White.copy(alpha = 0.7f)
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.White
-        )
-    }
-}
-
-@Composable
 fun SettingsScreen(viewModel: MainViewModel) {
+    val systemUiController = rememberSystemUiController()
+    // Remove DisposableEffect to keep system bars visible
+    // DisposableEffect(Unit) { ... } // Removed
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -605,3 +570,26 @@ fun SettingsScreen(viewModel: MainViewModel) {
         }
     }
 }
+
+@Composable
+fun ErrorSection(errorMessage: String) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = errorMessage)
+    }
+}
+
+@Composable
+fun LoadingSection() {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        CircularProgressIndicator()
+    }
+}
+

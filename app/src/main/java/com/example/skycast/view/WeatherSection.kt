@@ -35,9 +35,17 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
         "${it.lat}/${it.lon}"
     } ?: "Unknown Location"
 
-    // Date and time formatting
+    // Date and time formatting (unchanged)
     val formattedDateTime = weatherResponse.dt?.let { timestamp ->
         timestampToHumanDate(timestamp.toLong(), "EEE, MMM d • hh:mm a")
+    } ?: LOADING
+
+    // Sunrise and sunset times (unchanged format)
+    val sunriseTime = weatherResponse.sys?.sunrise?.let { timestamp ->
+        timestampToHumanDate(timestamp.toLong(), "hh:mm a")
+    } ?: LOADING
+    val sunsetTime = weatherResponse.sys?.sunset?.let { timestamp ->
+        timestampToHumanDate(timestamp.toLong(), "hh:mm a")
     } ?: LOADING
 
     // Weather description and icon
@@ -46,7 +54,14 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
 
     // Temperature and other info
     val temperature = weatherResponse.main?.temp?.let { "%.1f".format(it) + "°C" } ?: LOADING
+    val feelsLike = weatherResponse.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: NA
+    val tempMin = weatherResponse.main?.tempMin?.let { "%.1f".format(it) + "°C" } ?: NA
+    val tempMax = weatherResponse.main?.tempMax?.let { "%.1f".format(it) + "°C" } ?: NA
+    val pressure = weatherResponse.main?.pressure?.let { "${it.toInt()} hPa" } ?: NA
+    val humidity = weatherResponse.main?.humidity?.let { "$it%" } ?: NA
     val windSpeed = weatherResponse.wind?.speed?.let { "${it.toInt()} m/s" } ?: LOADING
+    val windDirection = weatherResponse.wind?.deg?.let { "$it°" } ?: NA
+    val visibility = weatherResponse.visibility?.let { "${it}m" } ?: NA
     val cloudiness = weatherResponse.clouds?.all?.let { "$it%" } ?: LOADING
     val snowVolume = weatherResponse.snow?.d1h?.let { "${it}mm" } ?: NA
 
@@ -54,10 +69,11 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
         modifier = modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Location and Date/Time
+        // Location, Date/Time, Sunrise, and Sunset
         WeatherTitleSection(
             title = locationName,
-            subtitle = formattedDateTime,
+            subtitle = "Sunrise: $sunriseTime | Sunset: $sunsetTime",
+            additionalInfo = formattedDateTime,
             titleStyle = MaterialTheme.typography.headlineLarge, // Use typography
             subtitleStyle = MaterialTheme.typography.bodyLarge // Use typography
         )
@@ -73,17 +89,34 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
         WeatherTitleSection(
             title = temperature,
             subtitle = weatherDescription.replaceFirstChar { it.uppercase() },
+            additionalInfo = "",
             titleStyle = MaterialTheme.typography.displayLarge, // Use typography
             subtitleStyle = MaterialTheme.typography.bodyLarge // Use typography
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Weather Stats
+        // Additional Temperature Info
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            WeatherStatItem(icon = FaIcons.ThermometerHalf, value = feelsLike, label = "Feels Like")
+            WeatherStatItem(icon = FaIcons.ThermometerEmpty, value = tempMin, label = "Min Temp")
+            WeatherStatItem(icon = FaIcons.ThermometerFull, value = tempMax, label = "Max Temp")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Weather Stats (Aligned in two rows)
         WeatherStatsRow(
             windSpeed = windSpeed,
+            windDirection = windDirection,
             cloudiness = cloudiness,
-            snowVolume = snowVolume
+            snowVolume = snowVolume,
+            visibility = visibility,
+            pressure = pressure,
+            humidity = humidity
         )
     }
 }
@@ -92,6 +125,7 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
 fun WeatherTitleSection(
     title: String,
     subtitle: String,
+    additionalInfo: String,
     titleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.headlineLarge,
     subtitleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.bodyLarge,
     modifier: Modifier = Modifier
@@ -112,25 +146,51 @@ fun WeatherTitleSection(
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
             modifier = Modifier.padding(top = 4.dp)
         )
+        if (additionalInfo.isNotEmpty()) {
+            Text(
+                text = additionalInfo,
+                style = subtitleStyle,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }
 
 @Composable
 fun WeatherStatsRow(
     windSpeed: String,
+    windDirection: String,
     cloudiness: String,
     snowVolume: String,
+    visibility: String,
+    pressure: String,
+    humidity: String,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp),
-        horizontalArrangement = Arrangement.SpaceEvenly
+    Column(
+        modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        WeatherStatItem(icon = FaIcons.Wind, value = windSpeed, label = "Wind")
-        WeatherStatItem(icon = FaIcons.Cloud, value = cloudiness, label = "Clouds")
-        WeatherStatItem(icon = FaIcons.Snowflake, value = snowVolume, label = "Snow")
+        // First row with 4 items
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            WeatherStatItem(icon = FaIcons.Wind, value = windSpeed, label = "Wind")
+            WeatherStatItem(icon = FaIcons.Compass, value = windDirection, label = "Direction")
+            WeatherStatItem(icon = FaIcons.Cloud, value = cloudiness, label = "Clouds")
+            WeatherStatItem(icon = FaIcons.Snowflake, value = snowVolume, label = "Snow")
+        }
+        // Second row with 3 items
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            WeatherStatItem(icon = FaIcons.Eye, value = visibility, label = "Visibility")
+            WeatherStatItem(icon = FaIcons.TachometerAlt, value = pressure, label = "Pressure")
+            WeatherStatItem(icon = FaIcons.Tint, value = humidity, label = "Humidity")
+        }
     }
 }
 
