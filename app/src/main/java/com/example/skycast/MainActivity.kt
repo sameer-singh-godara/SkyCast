@@ -98,26 +98,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onPause() {
         super.onPause()
-        locationCallback?.let {
-            fusedLocationProviderClient?.removeLocationUpdates(it)
+        if (::locationCallback.isInitialized) {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback)
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun startLocationUpdate() {
-        locationCallback?.let {
-            val locationRequest = LocationRequest.Builder(
-                Priority.PRIORITY_HIGH_ACCURACY, 100
-            )
+        if (::locationCallback.isInitialized) {
+            val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100)
                 .setWaitForAccurateLocation(false)
                 .setMinUpdateIntervalMillis(3000)
                 .setMaxUpdateDelayMillis(100)
                 .build()
-            fusedLocationProviderClient?.requestLocationUpdates(
-                locationRequest,
-                it,
-                Looper.getMainLooper()
-            )
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper())
         }
     }
 
@@ -130,24 +124,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: MainViewModel = viewModel()
 
-            // Provide fontScale via CompositionLocal and trigger recomposition
             CompositionLocalProvider(LocalFontScale provides viewModel.fontSizeScale) {
-
-                // Debug: Show toast when fontSizeScale changes
-//                LaunchedEffect(viewModel.fontSizeScale) {
-//                    Toast.makeText(this@MainActivity, "Font Scale: ${viewModel.fontSizeScale}", Toast.LENGTH_SHORT).show()
-//                }
-
-                // Force recomposition when darkMode or fontSizeScale changes
                 LaunchedEffect(viewModel.darkMode, viewModel.fontSizeScale) {
-                    // This empty block ensures recomposition
+                    // Empty block to trigger recomposition
                 }
 
-                SkyCastTheme(darkTheme = viewModel.darkMode) {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
-                    ) {
+                SkyCastTheme(darkTheme = viewModel.darkMode, fontScale = viewModel.fontSizeScale) {
+                    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                         AppNavigation(this@MainActivity, viewModel)
                     }
                 }
@@ -161,21 +144,15 @@ class MainActivity : ComponentActivity() {
         var currentLocation by remember { mutableStateOf(MyLatLng(0.0, 0.0)) }
         val systemUiController = rememberSystemUiController()
 
-        // Ensure system bars are always visible
         DisposableEffect(Unit) {
-            systemUiController.isSystemBarsVisible = true // Show system bars
+            systemUiController.isSystemBarsVisible = true
             onDispose { }
         }
 
-        // Implement location callback
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
-                super.onLocationResult(p0)
-                for (location in p0.locations) {
-                    currentLocation = MyLatLng(
-                        location.latitude,
-                        location.longitude
-                    )
+                p0.locations.forEach { location ->
+                    currentLocation = MyLatLng(location.latitude, location.longitude)
                 }
             }
         }
@@ -186,55 +163,32 @@ class MainActivity : ComponentActivity() {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
 
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Home, contentDescription = "Home") },
-                        label = { Text("Home") },
-                        selected = currentRoute == Screen.Home.route,
-                        onClick = {
-                            navController.navigate(Screen.Home.route) {
-                                popUpTo(Screen.Home.route) { inclusive = true }
+                    listOf(
+                        Screen.Home to Icons.Default.Home,
+                        Screen.Search to Icons.Default.Search,
+                        Screen.Settings to Icons.Default.Settings
+                    ).forEach { (screen, icon) ->
+                        NavigationBarItem(
+                            icon = { Icon(icon, contentDescription = screen.route) },
+                            label = { Text(screen.route.capitalize()) },
+                            selected = currentRoute == screen.route,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(Screen.Home.route) {
+                                        saveState = true
+                                        inclusive = screen == Screen.Home
+                                    }
+                                }
                             }
-                        }
-                    )
-
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Search, contentDescription = "Search") },
-                        label = { Text("Search") },
-                        selected = currentRoute == Screen.Search.route,
-                        onClick = {
-                            navController.navigate(Screen.Search.route) {
-                                popUpTo(Screen.Home.route) { saveState = true }
-                            }
-                        }
-                    )
-
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Settings, contentDescription = "Settings") },
-                        label = { Text("Settings") },
-                        selected = currentRoute == Screen.Settings.route,
-                        onClick = {
-                            navController.navigate(Screen.Settings.route) {
-                                popUpTo(Screen.Home.route) { saveState = true }
-                            }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         ) { innerPadding ->
-            NavHost(
-                navController = navController,
-                startDestination = Screen.Home.route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(Screen.Home.route) {
-                    LocationScreen(context, currentLocation, viewModel)
-                }
-                composable(Screen.Search.route) {
-                    SearchScreen(context, viewModel)
-                }
-                composable(Screen.Settings.route) {
-                    SettingsScreen(viewModel)
-                }
+            NavHost(navController, startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)) {
+                composable(Screen.Home.route) { LocationScreen(context, currentLocation, viewModel) }
+                composable(Screen.Search.route) { SearchScreen(context, viewModel) }
+                composable(Screen.Settings.route) { SettingsScreen(viewModel) }
             }
         }
     }
@@ -247,22 +201,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initViewModel() {
-        mainViewModel = ViewModelProvider(this@MainActivity)[MainViewModel::class.java]
+        mainViewModel = ViewModelProvider(this)[MainViewModel::class.java]
     }
 
     @Composable
-    private fun LocationScreen(
-        context: Context,
-        currentLocation: MyLatLng,
-        viewModel: MainViewModel
-    ) {
-        // request run time permission
-        val launcherMultiplePermissions = rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestMultiplePermissions()
-        ) { permissionMap ->
-            val areGranted = permissionMap.values.reduce { accepted, next ->
-                accepted && next
-            }
+    private fun LocationScreen(context: Context, currentLocation: MyLatLng, viewModel: MainViewModel) {
+        val launcherMultiplePermissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionMap ->
+            val areGranted = permissionMap.values.all { it }
             if (areGranted) {
                 locationRequired = true
                 startLocationUpdate()
@@ -272,32 +217,21 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // No DisposableEffect needed since system bars are managed at the root level
-        LaunchedEffect(key1 = currentLocation, block = {
+        LaunchedEffect(currentLocation) {
             coroutineScope {
-                if (permissions.all {
-                        ContextCompat.checkSelfPermission(
-                            context,
-                            it
-                        ) == PackageManager.PERMISSION_GRANTED
-                    }) {
-                    // if permission accepted
+                if (permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }) {
                     startLocationUpdate()
                 } else {
                     launcherMultiplePermissions.launch(permissions)
                 }
             }
-        })
+        }
 
-        LaunchedEffect(key1 = true, block = {
+        LaunchedEffect(Unit) {
             fetchWeatherInformation(mainViewModel, currentLocation)
-        })
+        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.TopEnd
-        ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
             val screenHeight = LocalConfiguration.current.screenHeightDp.dp
             val marginTop = screenHeight * 0.1f
             val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
@@ -307,10 +241,7 @@ class MainActivity : ComponentActivity() {
                     .verticalScroll(rememberScrollState())
                     .layout { measurable, constraints ->
                         val placeable = measurable.measure(constraints)
-                        layout(
-                            placeable.width,
-                            placeable.height + marginTopPx.toInt()
-                        ) {
+                        layout(placeable.width, placeable.height + marginTopPx.toInt()) {
                             placeable.placeRelative(0, marginTopPx.toInt())
                         }
                     },
@@ -318,12 +249,8 @@ class MainActivity : ComponentActivity() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 when (mainViewModel.state) {
-                    STATE.LOADING -> {
-                        LoadingSection()
-                    }
-                    STATE.FAILED -> {
-                        ErrorSection(mainViewModel.errorMessage)
-                    }
+                    STATE.LOADING -> LoadingSection()
+                    STATE.FAILED -> ErrorSection(mainViewModel.errorMessage)
                     else -> {
                         WeatherSection(mainViewModel.weatherResponse)
                         ForecastSection(mainViewModel.forecastResponse)
@@ -332,9 +259,7 @@ class MainActivity : ComponentActivity() {
             }
 
             FloatingActionButton(
-                onClick = {
-                    fetchWeatherInformation(mainViewModel, currentLocation)
-                },
+                onClick = { fetchWeatherInformation(mainViewModel, currentLocation) },
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
@@ -365,8 +290,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initLocationClient() {
-        fusedLocationProviderClient = LocationServices
-            .getFusedLocationProviderClient(this)
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
     }
 }
 
@@ -377,13 +301,8 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
     var showResults by remember { mutableStateOf(false) }
 
     val systemUiController = rememberSystemUiController()
-    // Remove DisposableEffect to keep system bars visible
-    // DisposableEffect(Unit) { ... } // Removed
 
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.TopEnd
-    ) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
         val screenHeight = LocalConfiguration.current.screenHeightDp.dp
         val marginTop = screenHeight * 0.1f
         val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
@@ -393,10 +312,7 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
                 .verticalScroll(rememberScrollState())
                 .layout { measurable, constraints ->
                     val placeable = measurable.measure(constraints)
-                    layout(
-                        placeable.width,
-                        placeable.height + marginTopPx.toInt()
-                    ) {
+                    layout(placeable.width, placeable.height + marginTopPx.toInt()) {
                         placeable.placeRelative(0, marginTopPx.toInt())
                     }
                 },
@@ -406,18 +322,9 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
             OutlinedTextField(
                 value = locationQuery,
                 onValueChange = { locationQuery = it },
-                label = {
-                    Text(
-                        "Enter city name (e.g., London)",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
+                label = { Text("Enter city name (e.g., London)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = MaterialTheme.colorScheme.onSurface,
                     unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -441,57 +348,41 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
                         viewModel.getWeatherByLocationName(context, locationQuery)
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 enabled = !isLoading && locationQuery.isNotBlank()
             ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Text("Search")
-                }
+                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Text("Search")
             }
 
             when (viewModel.state) {
-                STATE.LOADING -> {
-                    if (isLoading) {
-                        LoadingSection()
-                    }
-                }
-                STATE.FAILED -> {
-                    ErrorSection(viewModel.errorMessage)
-                }
-                STATE.SUCCESS -> {
-                    if (showResults) {
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            if (viewModel.weatherResponse.name?.isNotEmpty() == true) {
-                                WeatherSection(viewModel.weatherResponse)
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-                            if (viewModel.forecastResponse.list?.isNotEmpty() == true) {
-                                ForecastSection(viewModel.forecastResponse)
-                            }
+                STATE.LOADING -> if (isLoading) LoadingSection()
+                STATE.FAILED -> ErrorSection(viewModel.errorMessage)
+                STATE.SUCCESS -> if (showResults) {
+                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        if (viewModel.weatherResponse.name?.isNotEmpty() == true) {
+                            WeatherSection(viewModel.weatherResponse)
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                        if (viewModel.forecastResponse.list?.isNotEmpty() == true) {
+                            ForecastSection(viewModel.forecastResponse)
                         }
                     }
                 }
             }
         }
 
-        // Observe viewModel state changes
         LaunchedEffect(viewModel.state) {
-            if (viewModel.state == STATE.SUCCESS) {
-                isLoading = false
-                showResults = true
-            } else if (viewModel.state == STATE.FAILED) {
-                isLoading = false
-                showResults = false
-                Toast.makeText(context, viewModel.errorMessage, Toast.LENGTH_SHORT).show()
+            when (viewModel.state) {
+                STATE.SUCCESS -> {
+                    isLoading = false
+                    showResults = true
+                }
+                STATE.FAILED -> {
+                    isLoading = false
+                    showResults = false
+                    Toast.makeText(context, viewModel.errorMessage, Toast.LENGTH_SHORT).show()
+                }
+                else -> {}
             }
         }
     }
@@ -500,21 +391,10 @@ fun SearchScreen(context: Context, viewModel: MainViewModel) {
 @Composable
 fun SettingsScreen(viewModel: MainViewModel) {
     val systemUiController = rememberSystemUiController()
-    // Remove DisposableEffect to keep system bars visible
-    // DisposableEffect(Unit) { ... } // Removed
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            "Settings",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 24.dp)
-        )
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 24.dp))
 
-        // Font Size Settings
         Text("Font Size", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -523,13 +403,7 @@ fun SettingsScreen(viewModel: MainViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Button(
-                onClick = { viewModel.decreaseFontSize() },
-                enabled = viewModel.fontSizeScale > 0.8f
-            ) {
-                Text("Decrease")
-            }
-
+            Button(onClick = { viewModel.decreaseFontSize() }, enabled = viewModel.fontSizeScale > 0.5f) { Text("Decrease") }
             Text(
                 when {
                     viewModel.fontSizeScale <= 0.8f -> "Small"
@@ -539,18 +413,11 @@ fun SettingsScreen(viewModel: MainViewModel) {
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
-
-            Button(
-                onClick = { viewModel.increaseFontSize() },
-                enabled = viewModel.fontSizeScale < 1.2f
-            ) {
-                Text("Increase")
-            }
+            Button(onClick = { viewModel.increaseFontSize() }, enabled = viewModel.fontSizeScale < 1.5f) { Text("Increase") }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Theme Mode Setting
         Text("Appearance", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -559,15 +426,8 @@ fun SettingsScreen(viewModel: MainViewModel) {
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                if (viewModel.darkMode) "Dark Mode" else "Light Mode",
-                style = MaterialTheme.typography.titleLarge
-            )
-
-            Switch(
-                checked = viewModel.darkMode,
-                onCheckedChange = { viewModel.toggleDarkMode() }
-            )
+            Text(if (viewModel.darkMode) "Dark Mode" else "Light Mode", style = MaterialTheme.typography.titleLarge)
+            Switch(checked = viewModel.darkMode, onCheckedChange = { viewModel.toggleDarkMode() })
         }
     }
 }
@@ -593,4 +453,3 @@ fun LoadingSection() {
         CircularProgressIndicator()
     }
 }
-

@@ -23,19 +23,14 @@ enum class STATE {
 }
 
 class MainViewModel : ViewModel() {
-    // Control state of View Model
     var state by mutableStateOf(STATE.LOADING)
-    // Hold value from API for Weather info
     var weatherResponse: WeatherResult by mutableStateOf(WeatherResult())
-    // Hold value from API for Forecast info
     var forecastResponse: ForecastResult by mutableStateOf(ForecastResult())
     var errorMessage: String by mutableStateOf(value = "")
 
-    // Theme mode
     var darkMode by mutableStateOf(false)
         private set
 
-    // Font size (small=0.8, medium=1.0, large=1.2)
     var fontSizeScale by mutableStateOf(1.0f)
         private set
 
@@ -44,22 +39,12 @@ class MainViewModel : ViewModel() {
     }
 
     fun increaseFontSize() {
-        fontSizeScale = when {
-            fontSizeScale < 0.8f -> 0.8f
-            fontSizeScale < 1.0f -> 1.0f
-            else -> 1.2f
-        }
-        // Optional: Add log or state change notification
+        fontSizeScale = (fontSizeScale + 0.1f).coerceAtMost(1.5f) // Max 1.5f
         Log.d("FontSize", "Font size increased to $fontSizeScale")
     }
 
     fun decreaseFontSize() {
-        fontSizeScale = when {
-            fontSizeScale > 1.0f -> 1.0f
-            fontSizeScale > 0.8f -> 0.8f
-            else -> 0.8f
-        }
-        // Optional: Add log or state change notification
+        fontSizeScale = (fontSizeScale - 0.1f).coerceAtLeast(0.5f) // Min 0.5f
         Log.d("FontSize", "Font size decreased to $fontSizeScale")
     }
 
@@ -70,10 +55,10 @@ class MainViewModel : ViewModel() {
             val apiService = RetrofitClient.getInstance()
             try {
                 val apiResponse = apiService.getWeather(latLng.lat, latLng.lng)
-                weatherResponse = apiResponse // Update state
+                weatherResponse = apiResponse
                 state = STATE.SUCCESS
             } catch (e: Exception) {
-                errorMessage = e.message!!.toString()
+                errorMessage = e.message!!
                 state = STATE.FAILED
             }
         }
@@ -85,10 +70,10 @@ class MainViewModel : ViewModel() {
             val apiService = RetrofitClient.getInstance()
             try {
                 val apiResponse = apiService.getForecast(latLng.lat, latLng.lng)
-                forecastResponse = apiResponse // Update state
+                forecastResponse = apiResponse
                 state = STATE.SUCCESS
             } catch (e: Exception) {
-                errorMessage = e.message!!.toString()
+                errorMessage = e.message!!
                 state = STATE.FAILED
             }
         }
