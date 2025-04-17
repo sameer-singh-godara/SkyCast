@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +41,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -141,6 +144,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     private fun AppNavigation(context: Context, viewModel: MainViewModel) {
         val navController = rememberNavController()
@@ -161,6 +165,21 @@ class MainActivity : ComponentActivity() {
         }
 
         Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = "SkyCast",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    )
+                )
+            },
             bottomBar = {
                 NavigationBar {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -188,7 +207,11 @@ class MainActivity : ComponentActivity() {
                 }
             }
         ) { innerPadding ->
-            NavHost(navController, startDestination = Screen.Home.route, modifier = Modifier.padding(innerPadding)) {
+            NavHost(
+                navController,
+                startDestination = Screen.Home.route,
+                modifier = Modifier.padding(innerPadding)
+            ) {
                 composable(Screen.Home.route) { LocationScreen(context, currentLocation, viewModel) }
                 composable(Screen.Search.route) { SearchScreen(context, viewModel) }
                 composable(Screen.Settings.route) { SettingsScreen(viewModel) }
@@ -277,20 +300,12 @@ class MainActivity : ComponentActivity() {
         val systemUiController = rememberSystemUiController()
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-            val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-            val marginTop = screenHeight * 0.1f
-            val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
-
             Column(
                 modifier = Modifier
+                    .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .layout { measurable, constraints ->
-                        val placeable = measurable.measure(constraints)
-                        layout(placeable.width, placeable.height + marginTopPx.toInt()) {
-                            placeable.placeRelative(0, marginTopPx.toInt())
-                        }
-                    },
-                verticalArrangement = Arrangement.Center,
+                    .padding(top = 16.dp),
+                verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 OutlinedTextField(
@@ -332,7 +347,10 @@ class MainActivity : ComponentActivity() {
                     STATE.LOADING -> if (isLoading) LoadingSection()
                     STATE.FAILED -> ErrorSection(viewModel.searchErrorMessage)
                     STATE.SUCCESS -> if (showResults) {
-                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
                             if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
                                 WeatherSection(viewModel.searchWeatherResponse)
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -368,8 +386,6 @@ class MainActivity : ComponentActivity() {
         val systemUiController = rememberSystemUiController()
 
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 24.dp))
-
             Text("Font Size", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -378,7 +394,10 @@ class MainActivity : ComponentActivity() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Button(onClick = { viewModel.decreaseFontSize() }, enabled = viewModel.fontSizeScale > 0.5f) { Text("Decrease") }
+                Button(
+                    onClick = { viewModel.decreaseFontSize() },
+                    enabled = viewModel.fontSizeScale > 0.5f
+                ) { Text("Decrease") }
                 Text(
                     when {
                         viewModel.fontSizeScale <= 0.8f -> "Small"
@@ -388,7 +407,10 @@ class MainActivity : ComponentActivity() {
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
-                Button(onClick = { viewModel.increaseFontSize() }, enabled = viewModel.fontSizeScale < 1.5f) { Text("Increase") }
+                Button(
+                    onClick = { viewModel.increaseFontSize() },
+                    enabled = viewModel.fontSizeScale < 1.5f
+                ) { Text("Increase") }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -401,8 +423,14 @@ class MainActivity : ComponentActivity() {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(if (viewModel.darkMode) "Dark Mode" else "Light Mode", style = MaterialTheme.typography.titleLarge)
-                Switch(checked = viewModel.darkMode, onCheckedChange = { viewModel.toggleDarkMode() })
+                Text(
+                    if (viewModel.darkMode) "Dark Mode" else "Light Mode",
+                    style = MaterialTheme.typography.titleLarge
+                )
+                Switch(
+                    checked = viewModel.darkMode,
+                    onCheckedChange = { viewModel.toggleDarkMode() }
+                )
             }
         }
     }
