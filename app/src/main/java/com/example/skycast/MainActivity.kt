@@ -53,6 +53,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -170,7 +173,7 @@ class MainActivity : ComponentActivity() {
                     ).forEach { (screen, icon) ->
                         NavigationBarItem(
                             icon = { Icon(icon, contentDescription = screen.route) },
-                            label = { Text(screen.route.capitalize()) },
+                            label = { Text(screen.route.capitalize(Locale.current)) },
                             selected = currentRoute == screen.route,
                             onClick = {
                                 navController.navigate(screen.route) {
@@ -194,10 +197,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun fetchWeatherInformation(mainViewModel: MainViewModel, currentLocation: MyLatLng) {
-        mainViewModel.state = STATE.LOADING
         mainViewModel.getWeatherByLocation(currentLocation)
         mainViewModel.getForecastByLocation(currentLocation)
-        mainViewModel.state = STATE.SUCCESS
     }
 
     private fun initViewModel() {
@@ -228,7 +229,7 @@ class MainActivity : ComponentActivity() {
         }
 
         LaunchedEffect(Unit) {
-            fetchWeatherInformation(mainViewModel, currentLocation)
+            fetchWeatherInformation(viewModel, currentLocation)
         }
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
@@ -248,21 +249,160 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                when (mainViewModel.state) {
+                when (viewModel.state) {
                     STATE.LOADING -> LoadingSection()
-                    STATE.FAILED -> ErrorSection(mainViewModel.errorMessage)
+                    STATE.FAILED -> ErrorSection(viewModel.errorMessage)
                     else -> {
-                        WeatherSection(mainViewModel.weatherResponse)
-                        ForecastSection(mainViewModel.forecastResponse)
+                        WeatherSection(viewModel.weatherResponse)
+                        ForecastSection(viewModel.forecastResponse)
                     }
                 }
             }
 
             FloatingActionButton(
-                onClick = { fetchWeatherInformation(mainViewModel, currentLocation) },
+                onClick = { fetchWeatherInformation(viewModel, currentLocation) },
                 modifier = Modifier.padding(bottom = 16.dp)
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+            }
+        }
+    }
+
+    @Composable
+    fun SearchScreen(context: Context, viewModel: MainViewModel) {
+        var locationQuery by remember { mutableStateOf("") }
+        var isLoading by remember { mutableStateOf(false) }
+        var showResults by remember { mutableStateOf(false) }
+
+        val systemUiController = rememberSystemUiController()
+
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+            val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+            val marginTop = screenHeight * 0.1f
+            val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
+
+            Column(
+                modifier = Modifier
+                    .verticalScroll(rememberScrollState())
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height + marginTopPx.toInt()) {
+                            placeable.placeRelative(0, marginTopPx.toInt())
+                        }
+                    },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                OutlinedTextField(
+                    value = locationQuery,
+                    onValueChange = { locationQuery = it },
+                    label = { Text("Enter city name (e.g., London)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                        cursorColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        if (locationQuery.isNotBlank()) {
+                            isLoading = true
+                            showResults = false
+                            viewModel.getWeatherByLocationName(context, locationQuery)
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    enabled = !isLoading && locationQuery.isNotBlank()
+                ) {
+                    if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Text("Search")
+                }
+
+                when (viewModel.searchState) {
+                    STATE.LOADING -> if (isLoading) LoadingSection()
+                    STATE.FAILED -> ErrorSection(viewModel.searchErrorMessage)
+                    STATE.SUCCESS -> if (showResults) {
+                        Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
+                                WeatherSection(viewModel.searchWeatherResponse)
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                            if (viewModel.searchForecastResponse.list?.isNotEmpty() == true) {
+                                ForecastSection(viewModel.searchForecastResponse)
+                            }
+                        }
+                    }
+                    else -> {}
+                }
+            }
+
+            LaunchedEffect(viewModel.searchState) {
+                when (viewModel.searchState) {
+                    STATE.SUCCESS -> {
+                        isLoading = false
+                        showResults = true
+                    }
+                    STATE.FAILED -> {
+                        isLoading = false
+                        showResults = false
+                        Toast.makeText(context, viewModel.searchErrorMessage, Toast.LENGTH_SHORT).show()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun SettingsScreen(viewModel: MainViewModel) {
+        val systemUiController = rememberSystemUiController()
+
+        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+            Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 24.dp))
+
+            Text("Font Size", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Button(onClick = { viewModel.decreaseFontSize() }, enabled = viewModel.fontSizeScale > 0.5f) { Text("Decrease") }
+                Text(
+                    when {
+                        viewModel.fontSizeScale <= 0.8f -> "Small"
+                        viewModel.fontSizeScale <= 1.0f -> "Medium"
+                        else -> "Large"
+                    },
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Button(onClick = { viewModel.increaseFontSize() }, enabled = viewModel.fontSizeScale < 1.5f) { Text("Increase") }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text("Appearance", style = MaterialTheme.typography.titleMedium)
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(if (viewModel.darkMode) "Dark Mode" else "Light Mode", style = MaterialTheme.typography.titleLarge)
+                Switch(checked = viewModel.darkMode, onCheckedChange = { viewModel.toggleDarkMode() })
             }
         }
     }
@@ -291,165 +431,5 @@ class MainActivity : ComponentActivity() {
 
     private fun initLocationClient() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
-    }
-}
-
-@Composable
-fun SearchScreen(context: Context, viewModel: MainViewModel) {
-    var locationQuery by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    var showResults by remember { mutableStateOf(false) }
-
-    val systemUiController = rememberSystemUiController()
-
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
-        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
-        val marginTop = screenHeight * 0.1f
-        val marginTopPx = with(LocalDensity.current) { marginTop.toPx() }
-
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .layout { measurable, constraints ->
-                    val placeable = measurable.measure(constraints)
-                    layout(placeable.width, placeable.height + marginTopPx.toInt()) {
-                        placeable.placeRelative(0, marginTopPx.toInt())
-                    }
-                },
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            OutlinedTextField(
-                value = locationQuery,
-                onValueChange = { locationQuery = it },
-                label = { Text("Enter city name (e.g., London)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                    unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedLabelColor = MaterialTheme.colorScheme.primary,
-                    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    if (locationQuery.isNotBlank()) {
-                        isLoading = true
-                        showResults = false
-                        viewModel.getWeatherByLocationName(context, locationQuery)
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                enabled = !isLoading && locationQuery.isNotBlank()
-            ) {
-                if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Text("Search")
-            }
-
-            when (viewModel.state) {
-                STATE.LOADING -> if (isLoading) LoadingSection()
-                STATE.FAILED -> ErrorSection(viewModel.errorMessage)
-                STATE.SUCCESS -> if (showResults) {
-                    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        if (viewModel.weatherResponse.name?.isNotEmpty() == true) {
-                            WeatherSection(viewModel.weatherResponse)
-                            Spacer(modifier = Modifier.height(16.dp))
-                        }
-                        if (viewModel.forecastResponse.list?.isNotEmpty() == true) {
-                            ForecastSection(viewModel.forecastResponse)
-                        }
-                    }
-                }
-            }
-        }
-
-        LaunchedEffect(viewModel.state) {
-            when (viewModel.state) {
-                STATE.SUCCESS -> {
-                    isLoading = false
-                    showResults = true
-                }
-                STATE.FAILED -> {
-                    isLoading = false
-                    showResults = false
-                    Toast.makeText(context, viewModel.errorMessage, Toast.LENGTH_SHORT).show()
-                }
-                else -> {}
-            }
-        }
-    }
-}
-
-@Composable
-fun SettingsScreen(viewModel: MainViewModel) {
-    val systemUiController = rememberSystemUiController()
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Settings", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 24.dp))
-
-        Text("Font Size", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(onClick = { viewModel.decreaseFontSize() }, enabled = viewModel.fontSizeScale > 0.5f) { Text("Decrease") }
-            Text(
-                when {
-                    viewModel.fontSizeScale <= 0.8f -> "Small"
-                    viewModel.fontSizeScale <= 1.0f -> "Medium"
-                    else -> "Large"
-                },
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-            Button(onClick = { viewModel.increaseFontSize() }, enabled = viewModel.fontSizeScale < 1.5f) { Text("Increase") }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Text("Appearance", style = MaterialTheme.typography.titleMedium)
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(if (viewModel.darkMode) "Dark Mode" else "Light Mode", style = MaterialTheme.typography.titleLarge)
-            Switch(checked = viewModel.darkMode, onCheckedChange = { viewModel.toggleDarkMode() })
-        }
-    }
-}
-
-@Composable
-fun ErrorSection(errorMessage: String) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = errorMessage)
-    }
-}
-
-@Composable
-fun LoadingSection() {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        CircularProgressIndicator()
     }
 }

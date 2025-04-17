@@ -13,20 +13,30 @@ import com.example.skycast.model.forecast.ForecastResult
 import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.network.RetrofitClient
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 enum class STATE {
     LOADING,
     SUCCESS,
-    FAILED
+    FAILED,
+    IDLE
 }
 
 class MainViewModel : ViewModel() {
-    var state by mutableStateOf(STATE.LOADING)
+    // States for LocationScreen
+    var state by mutableStateOf(STATE.IDLE)
     var weatherResponse: WeatherResult by mutableStateOf(WeatherResult())
     var forecastResponse: ForecastResult by mutableStateOf(ForecastResult())
-    var errorMessage: String by mutableStateOf(value = "")
+    var errorMessage: String by mutableStateOf("")
+
+    // States for SearchScreen
+    var searchState by mutableStateOf(STATE.IDLE)
+    var searchWeatherResponse: WeatherResult by mutableStateOf(WeatherResult())
+    var searchForecastResponse: ForecastResult by mutableStateOf(ForecastResult())
+    var searchErrorMessage: String by mutableStateOf("")
 
     var darkMode by mutableStateOf(false)
         private set
@@ -49,7 +59,7 @@ class MainViewModel : ViewModel() {
     }
 
     fun getWeatherByLocation(latLng: MyLatLng) {
-        Log.d("Weather App", "API Called by Coordinates!!!")
+        Log.d("Weather App", "API Called by Coordinates (Weather)!!!")
         viewModelScope.launch {
             state = STATE.LOADING
             val apiService = RetrofitClient.getInstance()
@@ -58,13 +68,14 @@ class MainViewModel : ViewModel() {
                 weatherResponse = apiResponse
                 state = STATE.SUCCESS
             } catch (e: Exception) {
-                errorMessage = e.message!!
+                errorMessage = e.message ?: "Unknown error"
                 state = STATE.FAILED
             }
         }
     }
 
     fun getForecastByLocation(latLng: MyLatLng) {
+        Log.d("Weather App", "API Called by Coordinates (Forecast)!!!")
         viewModelScope.launch {
             state = STATE.LOADING
             val apiService = RetrofitClient.getInstance()
@@ -73,7 +84,7 @@ class MainViewModel : ViewModel() {
                 forecastResponse = apiResponse
                 state = STATE.SUCCESS
             } catch (e: Exception) {
-                errorMessage = e.message!!
+                errorMessage = e.message ?: "Unknown error"
                 state = STATE.FAILED
             }
         }
@@ -91,7 +102,7 @@ class MainViewModel : ViewModel() {
                     null
                 }
             } catch (e: Exception) {
-                errorMessage = "Location not found: ${e.message}"
+                Log.e("Geocoder", "Error: ${e.message}")
                 null
             }
         }
@@ -100,21 +111,26 @@ class MainViewModel : ViewModel() {
     fun getWeatherByLocationName(context: Context, locationName: String) {
         Log.d("Weather App", "API Called by Name!!!")
         viewModelScope.launch {
-            state = STATE.LOADING
-            errorMessage = ""
+            searchState = STATE.LOADING
+            searchErrorMessage = ""
             try {
                 val coordinates = getCoordinatesFromLocationName(context, locationName)
                 if (coordinates != null) {
-                    getWeatherByLocation(coordinates)
-                    getForecastByLocation(coordinates)
-                    state = STATE.SUCCESS
+                    coroutineScope {
+                        val apiService = RetrofitClient.getInstance()
+                        val weatherDeferred = async { apiService.getWeather(coordinates.lat, coordinates.lng) }
+                        val forecastDeferred = async { apiService.getForecast(coordinates.lat, coordinates.lng) }
+                        searchWeatherResponse = weatherDeferred.await()
+                        searchForecastResponse = forecastDeferred.await()
+                        searchState = STATE.SUCCESS
+                    }
                 } else {
-                    errorMessage = "Location not found"
-                    state = STATE.FAILED
+                    searchErrorMessage = "Location not found"
+                    searchState = STATE.FAILED
                 }
             } catch (e: Exception) {
-                errorMessage = e.message ?: "Unknown error occurred"
-                state = STATE.FAILED
+                searchErrorMessage = e.message ?: "Unknown error occurred"
+                searchState = STATE.FAILED
             }
         }
     }
