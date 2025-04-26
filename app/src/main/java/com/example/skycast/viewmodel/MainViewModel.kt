@@ -22,7 +22,8 @@ enum class STATE {
     LOADING,
     SUCCESS,
     FAILED,
-    IDLE
+    IDLE,
+    NOTHING // New state for manual refresh
 }
 
 class MainViewModel : ViewModel() {
@@ -31,6 +32,12 @@ class MainViewModel : ViewModel() {
     var weatherResponse: WeatherResult by mutableStateOf(WeatherResult())
     var forecastResponse: ForecastResult by mutableStateOf(ForecastResult())
     var errorMessage: String by mutableStateOf("")
+    var lastFetchedLocation by mutableStateOf(MyLatLng(0.0, 0.0))
+        private set
+    var hasInitialFetchCompleted by mutableStateOf(false)
+        private set
+    var currentLocation by mutableStateOf(MyLatLng(0.0, 0.0))
+        private set
 
     // States for SearchScreen
     var searchState by mutableStateOf(STATE.IDLE)
@@ -43,6 +50,18 @@ class MainViewModel : ViewModel() {
 
     var fontSizeScale by mutableStateOf(1.0f)
         private set
+
+    fun updateCurrentLocation(location: MyLatLng) {
+        currentLocation = location
+    }
+
+    fun updateLastFetchedLocation(location: MyLatLng) {
+        lastFetchedLocation = location
+    }
+
+    fun setInitialFetchCompleted(completed: Boolean) {
+        hasInitialFetchCompleted = completed
+    }
 
     fun toggleDarkMode() {
         darkMode = !darkMode
@@ -61,7 +80,7 @@ class MainViewModel : ViewModel() {
     fun getWeatherByLocation(latLng: MyLatLng) {
         Log.d("Weather App", "API Called by Coordinates (Weather)!!!")
         viewModelScope.launch {
-            state = STATE.LOADING
+            state = if (state == STATE.NOTHING) STATE.NOTHING else STATE.LOADING
             val apiService = RetrofitClient.getInstance()
             try {
                 val apiResponse = apiService.getWeather(latLng.lat, latLng.lng)
@@ -77,7 +96,7 @@ class MainViewModel : ViewModel() {
     fun getForecastByLocation(latLng: MyLatLng) {
         Log.d("Weather App", "API Called by Coordinates (Forecast)!!!")
         viewModelScope.launch {
-            state = STATE.LOADING
+            state = if (state == STATE.NOTHING) STATE.NOTHING else STATE.LOADING
             val apiService = RetrofitClient.getInstance()
             try {
                 val apiResponse = apiService.getForecast(latLng.lat, latLng.lng)

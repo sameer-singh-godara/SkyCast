@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -30,7 +29,6 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -57,7 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
@@ -183,7 +180,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun AppNavigation(context: Context, viewModel: MainViewModel) {
         val navController = rememberNavController()
-        var currentLocation by remember { mutableStateOf(MyLatLng(0.0, 0.0)) }
         val systemUiController = rememberSystemUiController()
         val coroutineScope = rememberCoroutineScope()
 
@@ -195,7 +191,7 @@ class MainActivity : ComponentActivity() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(p0: LocationResult) {
                 p0.locations.forEach { location ->
-                    currentLocation = MyLatLng(location.latitude, location.longitude)
+                    viewModel.updateCurrentLocation(MyLatLng(location.latitude, location.longitude))
                 }
             }
         }
@@ -218,38 +214,52 @@ class MainActivity : ComponentActivity() {
             },
             bottomBar = {
                 Column {
-                    // Show manual refresh button only if battery < 30% and location is enabled
+                    // Show manual refresh button only on the Home screen if battery < 30% and location is enabled
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = navBackStackEntry?.destination?.route
                     val isLocationEnabled = LocationUtils.isLocationEnabled(context)
                     val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
                     val shouldAutoRefresh = BatteryUtils.shouldAutoRefresh(batteryPercentage)
-                    if (isLocationEnabled && !shouldAutoRefresh && batteryPercentage != -1) {
+
+                    if (currentRoute == Screen.Home.route && isLocationEnabled && !shouldAutoRefresh && batteryPercentage != -1) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(bottom = 8.dp),
+                                .padding(horizontal = 16.dp, vertical = 8.dp),
                             contentAlignment = Alignment.Center
                         ) {
-                            FloatingActionButton(
+                            Button(
                                 onClick = {
                                     coroutineScope.launch(Dispatchers.Main) {
-                                        val location = fetchLocationWithTimeout()
-                                        if (location != null && location.lat != 0.0 && location.lng != 0.0) {
-                                            currentLocation = location
-                                            fetchWeatherInformation(viewModel, currentLocation)
-                                        } else {
-                                            Toast.makeText(context, "Unable to fetch location", Toast.LENGTH_SHORT).show()
+                                        viewModel.state = STATE.NOTHING // Set the new state
+                                        var location: MyLatLng? = null
+                                        while (location == null || location.lat == 0.0 || location.lng == 0.0) {
+                                            location = fetchLocationWithTimeout()
+                                            if (location == null || location.lat == 0.0 || location.lng == 0.0) {
+                                                Toast.makeText(context, "Retrying to fetch location...", Toast.LENGTH_SHORT).show()
+                                                delay(5000L) // Retry every 5 seconds
+                                            }
                                         }
+                                        viewModel.updateCurrentLocation(location)
+                                        fetchWeatherInformation(viewModel, location)
                                     }
-                                }
+                                },
+                                modifier = Modifier.fillMaxWidth()
                             ) {
-                                Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                                    Spacer(modifier = Modifier.padding(horizontal = 4.dp))
+                                    Text("Refresh")
+                                }
                             }
                         }
                     }
 
                     NavigationBar {
-                        val navBackStackEntry by navController.currentBackStackEntryAsState()
-                        val currentRoute = navBackStackEntry?.destination?.route
+                        val currentNavRoute = navBackStackEntry?.destination?.route
 
                         listOf(
                             Screen.Home to Icons.Default.Home,
@@ -259,7 +269,7 @@ class MainActivity : ComponentActivity() {
                             NavigationBarItem(
                                 icon = { Icon(icon, contentDescription = screen.route) },
                                 label = { Text(screen.route.capitalize(Locale.current)) },
-                                selected = currentRoute == screen.route,
+                                selected = currentNavRoute == screen.route,
                                 onClick = {
                                     navController.navigate(screen.route) {
                                         popUpTo(Screen.Home.route) {
@@ -274,14 +284,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         ) { innerPadding ->
-            NavHost(
-                navController,
-                startDestination = Screen.Home.route,
-                modifier = Modifier.padding(innerPadding)
-            ) {
-                composable(Screen.Home.route) { LocationScreen(context, currentLocation, viewModel, coroutineScope) }
-                composable(Screen.Search.route) { SearchScreen(context, viewModel) }
-                composable(Screen.Settings.route) { SettingsScreen(viewModel) }
+            Box(modifier = Modifier.fillMaxSize()) {
+                NavHost(
+                    navController,
+                    startDestination = Screen.Home.route,
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    composable(Screen.Home.route) { LocationScreen(context, viewModel, coroutineScope) }
+                    composable(Screen.Search.route) { SearchScreen(context, viewModel) }
+                    composable(Screen.Settings.route) { SettingsScreen(viewModel) }
+                }
             }
         }
     }
@@ -298,7 +310,6 @@ class MainActivity : ComponentActivity() {
     @Composable
     private fun LocationScreen(
         context: Context,
-        currentLocation: MyLatLng,
         viewModel: MainViewModel,
         coroutineScope: CoroutineScope
     ) {
@@ -314,16 +325,10 @@ class MainActivity : ComponentActivity() {
 
         // Monitor battery level
         val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
-        val refreshInterval = when {
-            batteryPercentage > 60 -> 30_000L // 30 seconds
-            batteryPercentage in 30..60 -> 120_000L // 2 minutes
-            else -> Long.MAX_VALUE // Disable auto-refresh for < 30%
-        }
+        val refreshInterval = Long.MAX_VALUE // Adjust based on your needs
 
         // Continuously check location services status
         var isLocationEnabled by remember { mutableStateOf(LocationUtils.isLocationEnabled(context)) }
-        var hasInitialFetchCompleted by remember { mutableStateOf(false) }
-        var lastFetchedLocation by remember { mutableStateOf(MyLatLng(0.0, 0.0)) }
 
         LaunchedEffect(Unit) {
             while (true) {
@@ -334,21 +339,24 @@ class MainActivity : ComponentActivity() {
 
         // Initial fetch with retries until success
         LaunchedEffect(Unit) {
-            while (!hasInitialFetchCompleted) {
-                val location = fetchLocationWithTimeout()
-                if (location != null && location.lat != 0.0 && location.lng != 0.0) {
-                    lastFetchedLocation = location
-                    fetchWeatherInformation(viewModel, lastFetchedLocation)
-                    hasInitialFetchCompleted = true
-                } else {
-                    Toast.makeText(context, "Retrying to fetch location...", Toast.LENGTH_SHORT).show()
-                    delay(5_000L) // Wait 5 seconds before retrying
+            if (!viewModel.hasInitialFetchCompleted) {
+                while (!viewModel.hasInitialFetchCompleted) {
+                    val location = fetchLocationWithTimeout()
+                    if (location != null && location.lat != 0.0 && location.lng != 0.0) {
+                        viewModel.updateLastFetchedLocation(location)
+                        viewModel.updateCurrentLocation(location)
+                        fetchWeatherInformation(viewModel, location)
+                        viewModel.setInitialFetchCompleted(true)
+                    } else {
+                        Toast.makeText(context, "Retrying to fetch location...", Toast.LENGTH_SHORT).show()
+                        delay(5_000L) // Wait 5 seconds before retrying
+                    }
                 }
             }
         }
 
         // Periodic location fetch with battery-saving technique after initial fetch
-        if (hasInitialFetchCompleted) {
+        if (viewModel.hasInitialFetchCompleted) {
             LaunchedEffect(isLocationEnabled, refreshInterval, batteryPercentage) {
                 if (isLocationEnabled) {
                     if (permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }) {
@@ -358,8 +366,9 @@ class MainActivity : ComponentActivity() {
                             if (currentTime - lastUpdateTime >= refreshInterval) {
                                 val location = fetchLocationWithTimeout()
                                 if (location != null && location.lat != 0.0 && location.lng != 0.0) {
-                                    lastFetchedLocation = location
-                                    fetchWeatherInformation(viewModel, lastFetchedLocation)
+                                    viewModel.updateLastFetchedLocation(location)
+                                    viewModel.updateCurrentLocation(location)
+                                    fetchWeatherInformation(viewModel, location)
                                 }
                                 lastUpdateTime = currentTime
                             }
@@ -389,16 +398,16 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!isLocationEnabled && hasInitialFetchCompleted) {
+                if (!isLocationEnabled && viewModel.hasInitialFetchCompleted) {
                     ErrorSection("Location services are not enabled. Please enable location to view weather data.")
-                } else if (!hasInitialFetchCompleted) {
+                } else if (!viewModel.hasInitialFetchCompleted || viewModel.state == STATE.NOTHING) {
                     LoadingSection()
                 } else {
                     when (viewModel.state) {
                         STATE.LOADING -> LoadingSection()
                         STATE.FAILED -> ErrorSection(viewModel.errorMessage)
                         else -> {
-                            if (lastFetchedLocation.lat == 0.0 && lastFetchedLocation.lng == 0.0) {
+                            if (viewModel.lastFetchedLocation.lat == 0.0 && viewModel.lastFetchedLocation.lng == 0.0) {
                                 LoadingSection()
                             } else {
                                 WeatherSection(viewModel.weatherResponse)
@@ -416,8 +425,6 @@ class MainActivity : ComponentActivity() {
         var locationQuery by remember { mutableStateOf("") }
         var isLoading by remember { mutableStateOf(false) }
         var showResults by remember { mutableStateOf(false) }
-
-        val systemUiController = rememberSystemUiController()
 
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
             Column(
@@ -460,7 +467,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                     enabled = !isLoading && locationQuery.isNotBlank()
                 ) {
-                    if (isLoading) CircularProgressIndicator(modifier = Modifier.size(20.dp)) else Text("Search")
+                    if (isLoading) Text("Searching...") else Text("Search")
                 }
 
                 when (viewModel.searchState) {
@@ -503,8 +510,6 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun SettingsScreen(viewModel: MainViewModel) {
-        val systemUiController = rememberSystemUiController()
-
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Text("Font Size", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
