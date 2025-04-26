@@ -325,7 +325,11 @@ class MainActivity : ComponentActivity() {
 
         // Monitor battery level
         val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
-        val refreshInterval = Long.MAX_VALUE // Adjust based on your needs
+        val refreshInterval = when {
+            batteryPercentage > 60 -> 30_000L // 30 seconds
+            batteryPercentage in 30..60 -> 120_000L // 2 minutes
+            else -> Long.MAX_VALUE // Disable auto-refresh for < 30%
+        }
 
         // Continuously check location services status
         var isLocationEnabled by remember { mutableStateOf(LocationUtils.isLocationEnabled(context)) }
