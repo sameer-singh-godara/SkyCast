@@ -44,12 +44,5 @@ class BatteryUtils {
             return batteryPercentage >= 30
         }
 
-        fun getRefreshInterval(batteryPercentage: Int): Long {
-            return if (batteryPercentage > 60) {
-                30_000L // 30 seconds
-            } else {
-                120_000L // 2 minutes
-            }
-        }
     }
 }
