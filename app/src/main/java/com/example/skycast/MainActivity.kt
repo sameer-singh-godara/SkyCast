@@ -515,7 +515,8 @@ class MainActivity : ComponentActivity() {
             ) {
                 Button(
                     onClick = { viewModel.decreaseFontSize() },
-                    enabled = viewModel.fontSizeScale > 0.5f
+                    enabled = viewModel.fontSizeScale > 0.5f,
+                    modifier = Modifier.weight(1f)
                 ) { Text("Decrease") }
                 Text(
                     when {
@@ -524,11 +525,14 @@ class MainActivity : ComponentActivity() {
                         else -> "Large"
                     },
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 16.dp)
                 )
                 Button(
                     onClick = { viewModel.increaseFontSize() },
-                    enabled = viewModel.fontSizeScale < 1.5f
+                    enabled = viewModel.fontSizeScale < 1.5f,
+                    modifier = Modifier.weight(1f)
                 ) { Text("Increase") }
             }
 
