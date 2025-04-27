@@ -517,7 +517,7 @@ class MainActivity : ComponentActivity() {
                     onClick = { viewModel.decreaseFontSize() },
                     enabled = viewModel.fontSizeScale > 0.5f,
                     modifier = Modifier.weight(1f)
-                ) { Text("Decrease") }
+                ) { Text("-ve") }
                 Text(
                     when {
                         viewModel.fontSizeScale <= 0.8f -> "Small"
@@ -533,7 +533,7 @@ class MainActivity : ComponentActivity() {
                     onClick = { viewModel.increaseFontSize() },
                     enabled = viewModel.fontSizeScale < 1.5f,
                     modifier = Modifier.weight(1f)
-                ) { Text("Increase") }
+                ) { Text("+ve") }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
