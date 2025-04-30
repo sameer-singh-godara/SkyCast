@@ -161,7 +161,7 @@ class MainActivity : ComponentActivity() {
 
             CompositionLocalProvider(LocalFontScale provides viewModel.fontSizeScale) {
                 LaunchedEffect(viewModel.darkMode, viewModel.fontSizeScale) {
-                    // Empty block to trigger recomposition
+                    // Trigger recomposition on theme or font size change
                 }
 
                 SkyCastTheme(darkTheme = viewModel.darkMode, fontScale = viewModel.fontSizeScale) {
@@ -211,7 +211,7 @@ class MainActivity : ComponentActivity() {
             },
             bottomBar = {
                 Column {
-                    // Show manual refresh button only on the Home screen if battery < 30% and location is enabled
+                    // Show manual refresh button only on Home screen if battery < 30% and location is enabled
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentRoute = navBackStackEntry?.destination?.route
                     val isLocationEnabled = LocationUtils.isLocationEnabled(context)
@@ -228,13 +228,13 @@ class MainActivity : ComponentActivity() {
                             Button(
                                 onClick = {
                                     coroutineScope.launch(Dispatchers.Main) {
-                                        viewModel.state = STATE.NOTHING // Set the new state
+                                        viewModel.state = STATE.NOTHING
                                         var location: MyLatLng? = null
                                         while (location == null || location.lat == 0.0 || location.lng == 0.0) {
                                             location = fetchLocationWithTimeout()
                                             if (location == null || location.lat == 0.0 || location.lng == 0.0) {
                                                 Toast.makeText(context, "Retrying to fetch location...", Toast.LENGTH_SHORT).show()
-                                                delay(5000L) // Retry every 5 seconds
+                                                delay(5000L)
                                             }
                                         }
                                         viewModel.updateCurrentLocation(location)
@@ -392,14 +392,20 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!isLocationEnabled && viewModel.hasInitialFetchCompleted) {
-                    ErrorSection("Location services are not enabled. Please enable location to view weather data.")
+                if (!isLocationEnabled) {
+                    ErrorSection(
+                        errorMessage = "Location services are not enabled. Please enable location to view weather data.",
+                        color = MaterialTheme.colorScheme.error // Red color for error
+                    )
                 } else if (!viewModel.hasInitialFetchCompleted || viewModel.state == STATE.NOTHING) {
                     LoadingSection()
                 } else {
                     when (viewModel.state) {
                         STATE.LOADING -> LoadingSection()
-                        STATE.FAILED -> ErrorSection(viewModel.errorMessage)
+                        STATE.FAILED -> ErrorSection(
+                            errorMessage = viewModel.errorMessage,
+                            color = MaterialTheme.colorScheme.error // Red color for error
+                        )
                         else -> {
                             if (viewModel.lastFetchedLocation.lat == 0.0 && viewModel.lastFetchedLocation.lng == 0.0) {
                                 LoadingSection()
@@ -466,7 +472,10 @@ class MainActivity : ComponentActivity() {
 
                 when (viewModel.searchState) {
                     STATE.LOADING -> if (isLoading) LoadingSection()
-                    STATE.FAILED -> ErrorSection(viewModel.searchErrorMessage)
+                    STATE.FAILED -> ErrorSection(
+                        errorMessage = viewModel.searchErrorMessage,
+                        color = MaterialTheme.colorScheme.error // Red color for error
+                    )
                     STATE.SUCCESS -> if (showResults) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
@@ -559,13 +568,17 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ErrorSection(errorMessage: String) {
+    fun ErrorSection(errorMessage: String, color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.error) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = errorMessage)
+            Text(
+                text = errorMessage,
+                color = color, // Use provided color, defaulting to red (error)
+                style = MaterialTheme.typography.bodyLarge
+            )
         }
     }
 
