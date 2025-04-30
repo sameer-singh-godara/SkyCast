@@ -25,10 +25,13 @@
             android:theme="@style/Theme.SkyCast">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".FunActivity"
+            android:exported="false"
+            android:theme="@style/Theme.SkyCast" />
     </application>
 
 </manifest>

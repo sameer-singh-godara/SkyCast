@@ -2,6 +2,7 @@ package com.example.skycast
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Looper
@@ -583,12 +584,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Text(
                         text = "Font Size",
-                        style = MaterialTheme.typography.titleLarge, // Larger title size
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
-                        textDecoration = TextDecoration.Underline, // Underline the title
+                        textDecoration = TextDecoration.Underline,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Font size settings" }
+                            .semantics { contentDescription = "Font size settings underlined title" }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -655,12 +656,12 @@ class MainActivity : ComponentActivity() {
                 ) {
                     Text(
                         text = "Appearance",
-                        style = MaterialTheme.typography.titleLarge, // Larger title size
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
-                        textDecoration = TextDecoration.Underline, // Underline the title
+                        textDecoration = TextDecoration.Underline,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Appearance settings" }
+                            .semantics { contentDescription = "Appearance settings underlined title" }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
@@ -684,6 +685,50 @@ class MainActivity : ComponentActivity() {
                                 contentDescription = "Toggle ${if (viewModel.darkMode) "light" else "dark"} mode"
                             }
                         )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Fun Feature Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { contentDescription = "Fun feature card" },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Fun Feature",
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Fun feature" }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Button(
+                        onClick = {
+                            val intent = Intent(this@MainActivity, FunActivity::class.java).apply {
+                                putExtra("darkMode", viewModel.darkMode)
+                            }
+                            startActivity(intent)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Launch fun activity" }
+                    ) {
+                        Text("Let's Have Fun")
                     }
                 }
             }
