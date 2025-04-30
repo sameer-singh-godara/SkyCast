@@ -1,6 +1,5 @@
 package com.example.skycast.view
 
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -32,14 +33,18 @@ fun ForecastSection(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { contentDescription = "Weather forecast for the next few days" },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         forecastResponse.list?.let { listForecast ->
             if (listForecast.isNotEmpty()) {
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .semantics { contentDescription = "List of forecast tiles" },
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(listForecast) { item ->
@@ -77,7 +82,10 @@ fun ForecastTile(
     Card(
         modifier = modifier
             .padding(10.dp)
-            .width(130.dp),
+            .width(130.dp)
+            .semantics {
+                contentDescription = "Forecast for $time: $temp, feels like $feelsLike, $pop chance of precipitation, wind $windSpeed, $cloudiness cloud cover"
+            },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
             contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -92,50 +100,63 @@ fun ForecastTile(
         ) {
             Text(
                 text = temp,
-                style = MaterialTheme.typography.bodyLarge, // Use typography
+                style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .semantics { contentDescription = "Temperature: $temp" }
             )
 
             AsyncImage(
                 model = image,
-                contentDescription = null,
+                contentDescription = "Forecast weather icon",
                 modifier = Modifier
                     .width(60.dp)
-                    .height(60.dp),
+                    .height(60.dp)
+                    .semantics { contentDescription = "Weather icon for forecast" },
                 contentScale = ContentScale.Fit
             )
 
             Text(
                 text = time,
-                style = MaterialTheme.typography.bodySmall, // Use typography
+                style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 8.dp),
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .semantics { contentDescription = "Time: $time" },
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "Feels: $feelsLike",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .semantics { contentDescription = "Feels like: $feelsLike" }
             )
             Text(
                 text = "Pop: $pop",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .semantics { contentDescription = "Precipitation probability: $pop" }
             )
             Text(
                 text = "Wind: $windSpeed",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .semantics { contentDescription = "Wind speed: $windSpeed" }
             )
             Text(
                 text = "Clouds: $cloudiness",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .semantics { contentDescription = "Cloudiness: $cloudiness" }
             )
         }
     }

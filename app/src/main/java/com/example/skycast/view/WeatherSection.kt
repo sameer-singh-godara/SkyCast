@@ -16,14 +16,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.skycast.constant.Const.Companion.LOADING
 import com.example.skycast.constant.Const.Companion.NA
 import com.example.skycast.model.weather.WeatherResult
-import com.example.skycast.utils.Utils.Companion.timestampToHumanDate
 import com.example.skycast.utils.Utils.Companion.buildIcon
+import com.example.skycast.utils.Utils.Companion.timestampToHumanDate
 import com.guru.fontawesomecomposelib.FaIcon
 import com.guru.fontawesomecomposelib.FaIconType
 import com.guru.fontawesomecomposelib.FaIcons
@@ -35,12 +37,12 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
         "${it.lat}/${it.lon}"
     } ?: "Unknown Location"
 
-    // Date and time formatting (unchanged)
+    // Date and time formatting
     val formattedDateTime = weatherResponse.dt?.let { timestamp ->
         timestampToHumanDate(timestamp.toLong(), "EEE, MMM d • hh:mm a")
     } ?: LOADING
 
-    // Sunrise and sunset times (unchanged format)
+    // Sunrise and sunset times
     val sunriseTime = weatherResponse.sys?.sunrise?.let { timestamp ->
         timestampToHumanDate(timestamp.toLong(), "hh:mm a")
     } ?: LOADING
@@ -66,7 +68,9 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
     val snowVolume = weatherResponse.snow?.d1h?.let { "${it}mm" } ?: NA
 
     Column(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { contentDescription = "Current weather information for $locationName" },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Location, Date/Time, Sunrise, and Sunset
@@ -74,8 +78,8 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
             title = locationName,
             subtitle = "Sunrise: $sunriseTime | Sunset: $sunsetTime",
             additionalInfo = formattedDateTime,
-            titleStyle = MaterialTheme.typography.headlineLarge, // Use typography
-            subtitleStyle = MaterialTheme.typography.bodyLarge // Use typography
+            titleStyle = MaterialTheme.typography.headlineLarge,
+            subtitleStyle = MaterialTheme.typography.bodyLarge
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -90,15 +94,18 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
             title = temperature,
             subtitle = weatherDescription.replaceFirstChar { it.uppercase() },
             additionalInfo = "",
-            titleStyle = MaterialTheme.typography.displayLarge, // Use typography
-            subtitleStyle = MaterialTheme.typography.bodyLarge // Use typography
+            titleStyle = MaterialTheme.typography.displayLarge,
+            subtitleStyle = MaterialTheme.typography.bodyLarge
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Additional Temperature Info
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .semantics { contentDescription = "Additional temperature details" },
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             WeatherStatItem(icon = FaIcons.ThermometerHalf, value = feelsLike, label = "Feels Like")
@@ -131,27 +138,36 @@ fun WeatherTitleSection(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .semantics {
+                contentDescription = "$title, $subtitle${if (additionalInfo.isNotEmpty()) ", $additionalInfo" else ""}"
+            },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             text = title,
-            style = titleStyle, // Use typography style
+            style = titleStyle,
             color = MaterialTheme.colorScheme.onBackground,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { contentDescription = title }
         )
         Text(
             text = subtitle,
-            style = subtitleStyle, // Use typography style
+            style = subtitleStyle,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .semantics { contentDescription = subtitle }
         )
         if (additionalInfo.isNotEmpty()) {
             Text(
                 text = additionalInfo,
                 style = subtitleStyle,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .semantics { contentDescription = additionalInfo }
             )
         }
     }
@@ -169,12 +185,17 @@ fun WeatherStatsRow(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .semantics { contentDescription = "Weather statistics" },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // First row with 4 items
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { contentDescription = "First row of weather stats" },
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             WeatherStatItem(icon = FaIcons.Wind, value = windSpeed, label = "Wind")
@@ -184,7 +205,9 @@ fun WeatherStatsRow(
         }
         // Second row with 3 items
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics { contentDescription = "Second row of weather stats" },
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             WeatherStatItem(icon = FaIcons.Eye, value = visibility, label = "Visibility")
@@ -202,25 +225,31 @@ fun WeatherStatItem(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier,
+        modifier = modifier.semantics {
+            contentDescription = "$label: $value"
+        },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         FaIcon(
             faIcon = icon,
             size = 24.dp,
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.semantics { contentDescription = "$label icon" }
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium, // Use typography
+            style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(top = 4.dp)
+            modifier = Modifier
+                .padding(top = 4.dp)
+                .semantics { contentDescription = value }
         )
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall, // Use typography
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+            modifier = Modifier.semantics { contentDescription = label }
         )
     }
 }
@@ -229,10 +258,11 @@ fun WeatherStatItem(
 fun WeatherImage(icon: String, modifier: Modifier = Modifier) {
     AsyncImage(
         model = buildIcon(icon),
-        contentDescription = "Weather icon",
+        contentDescription = "Weather condition icon",
         modifier = modifier
             .width(120.dp)
-            .height(120.dp),
+            .height(120.dp)
+            .semantics { contentDescription = "Weather icon for current condition" },
         contentScale = ContentScale.Fit
     )
 }

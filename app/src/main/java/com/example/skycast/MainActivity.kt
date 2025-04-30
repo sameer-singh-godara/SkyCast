@@ -52,6 +52,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.dp
@@ -194,13 +196,15 @@ class MainActivity : ComponentActivity() {
         }
 
         Scaffold(
+            modifier = Modifier.semantics { contentDescription = "SkyCast Main Navigation" },
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
                             text = "SkyCast",
                             style = MaterialTheme.typography.headlineMedium,
-                            color = MaterialTheme.colorScheme.onPrimary
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.semantics { contentDescription = "SkyCast App Title" }
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -241,13 +245,20 @@ class MainActivity : ComponentActivity() {
                                         fetchWeatherInformation(viewModel, location)
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .semantics { contentDescription = "Refresh weather data" }
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
+                                    horizontalArrangement = Arrangement.Center,
+                                    modifier = Modifier.semantics { contentDescription = "Refresh button" }
                                 ) {
-                                    Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                                    Icon(
+                                        Icons.Default.Refresh,
+                                        contentDescription = null, // Described by parent semantics
+                                        modifier = Modifier.semantics { contentDescription = "Refresh icon" }
+                                    )
                                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
                                     Text("Refresh")
                                 }
@@ -255,7 +266,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-                    NavigationBar {
+                    NavigationBar(
+                        modifier = Modifier.semantics { contentDescription = "Bottom navigation bar" }
+                    ) {
                         val currentNavRoute = navBackStackEntry?.destination?.route
 
                         listOf(
@@ -264,8 +277,19 @@ class MainActivity : ComponentActivity() {
                             Screen.Settings to Icons.Default.Settings
                         ).forEach { (screen, icon) ->
                             NavigationBarItem(
-                                icon = { Icon(icon, contentDescription = screen.route) },
-                                label = { Text(screen.route.capitalize(Locale.current)) },
+                                icon = {
+                                    Icon(
+                                        icon,
+                                        contentDescription = "${screen.route.capitalize(Locale.current)} icon",
+                                        modifier = Modifier.semantics { contentDescription = "${screen.route.capitalize(Locale.current)} navigation icon" }
+                                    )
+                                },
+                                label = {
+                                    Text(
+                                        screen.route.capitalize(Locale.current),
+                                        modifier = Modifier.semantics { contentDescription = "${screen.route.capitalize(Locale.current)} navigation label" }
+                                    )
+                                },
                                 selected = currentNavRoute == screen.route,
                                 onClick = {
                                     navController.navigate(screen.route) {
@@ -274,7 +298,8 @@ class MainActivity : ComponentActivity() {
                                             inclusive = screen == Screen.Home
                                         }
                                     }
-                                }
+                                },
+                                modifier = Modifier.semantics { contentDescription = "Navigate to ${screen.route.capitalize(Locale.current)}" }
                             )
                         }
                     }
@@ -383,7 +408,11 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .semantics { contentDescription = "Home screen content" }
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -395,7 +424,7 @@ class MainActivity : ComponentActivity() {
                 if (!isLocationEnabled) {
                     ErrorSection(
                         errorMessage = "Location services are not enabled. Please enable location to view weather data.",
-                        color = MaterialTheme.colorScheme.error // Red color for error
+                        color = MaterialTheme.colorScheme.error
                     )
                 } else if (!viewModel.hasInitialFetchCompleted || viewModel.state == STATE.NOTHING) {
                     LoadingSection()
@@ -404,7 +433,7 @@ class MainActivity : ComponentActivity() {
                         STATE.LOADING -> LoadingSection()
                         STATE.FAILED -> ErrorSection(
                             errorMessage = viewModel.errorMessage,
-                            color = MaterialTheme.colorScheme.error // Red color for error
+                            color = MaterialTheme.colorScheme.error
                         )
                         else -> {
                             if (viewModel.lastFetchedLocation.lat == 0.0 && viewModel.lastFetchedLocation.lng == 0.0) {
@@ -426,7 +455,12 @@ class MainActivity : ComponentActivity() {
         var isLoading by remember { mutableStateOf(false) }
         var showResults by remember { mutableStateOf(false) }
 
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.TopEnd) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .semantics { contentDescription = "Search screen content" },
+            contentAlignment = Alignment.TopEnd
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -439,7 +473,10 @@ class MainActivity : ComponentActivity() {
                     value = locationQuery,
                     onValueChange = { locationQuery = it },
                     label = { Text("Enter city name (e.g., London)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .semantics { contentDescription = "City name input field" },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
                     colors = TextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
@@ -464,21 +501,26 @@ class MainActivity : ComponentActivity() {
                             viewModel.getWeatherByLocationName(context, locationQuery)
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .semantics { contentDescription = if (isLoading) "Searching" else "Search for weather by city" },
                     enabled = !isLoading && locationQuery.isNotBlank()
                 ) {
-                    if (isLoading) Text("Searching...") else Text("Search")
+                    Text(if (isLoading) "Searching..." else "Search")
                 }
 
                 when (viewModel.searchState) {
                     STATE.LOADING -> if (isLoading) LoadingSection()
                     STATE.FAILED -> ErrorSection(
                         errorMessage = viewModel.searchErrorMessage,
-                        color = MaterialTheme.colorScheme.error // Red color for error
+                        color = MaterialTheme.colorScheme.error
                     )
                     STATE.SUCCESS -> if (showResults) {
                         Column(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .semantics { contentDescription = "Search results" },
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
@@ -513,19 +555,32 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun SettingsScreen(viewModel: MainViewModel) {
-        Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-            Text("Font Size", style = MaterialTheme.typography.titleMedium)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .semantics { contentDescription = "Settings screen content" }
+        ) {
+            Text(
+                "Font Size",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.semantics { contentDescription = "Font size settings" }
+            )
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { contentDescription = "Font size adjustment controls" },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Button(
                     onClick = { viewModel.decreaseFontSize() },
                     enabled = viewModel.fontSizeScale > 0.5f,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { contentDescription = "Decrease font size" }
                 ) { Text("-ve") }
                 Text(
                     when {
@@ -537,31 +592,46 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 16.dp)
+                        .semantics { contentDescription = "Current font size: ${when {
+                            viewModel.fontSizeScale <= 0.8f -> "Small"
+                            viewModel.fontSizeScale <= 1.0f -> "Medium"
+                            else -> "Large"
+                        }}" }
                 )
                 Button(
                     onClick = { viewModel.increaseFontSize() },
                     enabled = viewModel.fontSizeScale < 1.5f,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier
+                        .weight(1f)
+                        .semantics { contentDescription = "Increase font size" }
                 ) { Text("+ve") }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Appearance", style = MaterialTheme.typography.titleMedium)
+            Text(
+                "Appearance",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.semantics { contentDescription = "Appearance settings" }
+            )
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { contentDescription = "Theme toggle" },
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     if (viewModel.darkMode) "Dark Mode" else "Light Mode",
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.semantics { contentDescription = "Current theme: ${if (viewModel.darkMode) "Dark Mode" else "Light Mode"}" }
                 )
                 Switch(
                     checked = viewModel.darkMode,
-                    onCheckedChange = { viewModel.toggleDarkMode() }
+                    onCheckedChange = { viewModel.toggleDarkMode() },
+                    modifier = Modifier.semantics { contentDescription = "Toggle ${if (viewModel.darkMode) "light" else "dark"} mode" }
                 )
             }
         }
@@ -570,14 +640,17 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun ErrorSection(errorMessage: String, color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.error) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .semantics { contentDescription = "Error message" },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 text = errorMessage,
-                color = color, // Use provided color, defaulting to red (error)
-                style = MaterialTheme.typography.bodyLarge
+                color = color,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.semantics { contentDescription = "Error: $errorMessage" }
             )
         }
     }
@@ -585,11 +658,15 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun LoadingSection() {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .semantics { contentDescription = "Loading indicator" },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.semantics { contentDescription = "Loading weather data" }
+            )
         }
     }
 
