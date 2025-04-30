@@ -27,6 +27,8 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -56,6 +58,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -561,78 +565,127 @@ class MainActivity : ComponentActivity() {
                 .padding(16.dp)
                 .semantics { contentDescription = "Settings screen content" }
         ) {
-            Text(
-                "Font Size",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.semantics { contentDescription = "Font size settings" }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
+            // Font Size Card
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .semantics { contentDescription = "Font size adjustment controls" },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Button(
-                    onClick = { viewModel.decreaseFontSize() },
-                    enabled = viewModel.fontSizeScale > 0.5f,
-                    modifier = Modifier
-                        .weight(1f)
-                        .semantics { contentDescription = "Decrease font size" }
-                ) { Text("-ve") }
-                Text(
-                    when {
-                        viewModel.fontSizeScale <= 0.8f -> "Small"
-                        viewModel.fontSizeScale <= 1.0f -> "Medium"
-                        else -> "Large"
-                    },
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(horizontal = 16.dp)
-                        .semantics { contentDescription = "Current font size: ${when {
-                            viewModel.fontSizeScale <= 0.8f -> "Small"
-                            viewModel.fontSizeScale <= 1.0f -> "Medium"
-                            else -> "Large"
-                        }}" }
+                    .semantics { contentDescription = "Font size settings card" },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Button(
-                    onClick = { viewModel.increaseFontSize() },
-                    enabled = viewModel.fontSizeScale < 1.5f,
+            ) {
+                Column(
                     modifier = Modifier
-                        .weight(1f)
-                        .semantics { contentDescription = "Increase font size" }
-                ) { Text("+ve") }
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Font Size",
+                        style = MaterialTheme.typography.titleLarge, // Larger title size
+                        textAlign = TextAlign.Center,
+                        textDecoration = TextDecoration.Underline, // Underline the title
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Font size settings" }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Font size adjustment controls" },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = { viewModel.decreaseFontSize() },
+                            enabled = viewModel.fontSizeScale > 0.5f,
+                            modifier = Modifier
+                                .weight(1f)
+                                .semantics { contentDescription = "Decrease font size" }
+                        ) { Text("-ve") }
+                        Text(
+                            text = when {
+                                viewModel.fontSizeScale <= 0.8f -> "Small"
+                                viewModel.fontSizeScale <= 1.0f -> "Medium"
+                                else -> "Large"
+                            },
+                            style = MaterialTheme.typography.titleLarge,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(horizontal = 8.dp)
+                                .semantics {
+                                    contentDescription = "Current font size: ${when {
+                                        viewModel.fontSizeScale <= 0.8f -> "Small"
+                                        viewModel.fontSizeScale <= 1.0f -> "Medium"
+                                        else -> "Large"
+                                    }}"
+                                }
+                        )
+                        Button(
+                            onClick = { viewModel.increaseFontSize() },
+                            enabled = viewModel.fontSizeScale < 1.5f,
+                            modifier = Modifier
+                                .weight(1f)
+                                .semantics { contentDescription = "Increase font size" }
+                        ) { Text("+ve") }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(
-                "Appearance",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.semantics { contentDescription = "Appearance settings" }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(
+            // Appearance Card
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .semantics { contentDescription = "Theme toggle" },
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                    .semantics { contentDescription = "Appearance settings card" },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             ) {
-                Text(
-                    if (viewModel.darkMode) "Dark Mode" else "Light Mode",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.semantics { contentDescription = "Current theme: ${if (viewModel.darkMode) "Dark Mode" else "Light Mode"}" }
-                )
-                Switch(
-                    checked = viewModel.darkMode,
-                    onCheckedChange = { viewModel.toggleDarkMode() },
-                    modifier = Modifier.semantics { contentDescription = "Toggle ${if (viewModel.darkMode) "light" else "dark"} mode" }
-                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Appearance",
+                        style = MaterialTheme.typography.titleLarge, // Larger title size
+                        textAlign = TextAlign.Center,
+                        textDecoration = TextDecoration.Underline, // Underline the title
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Appearance settings" }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = "Theme toggle" },
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (viewModel.darkMode) "Dark Mode" else "Light Mode",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.semantics {
+                                contentDescription = "Current theme: ${if (viewModel.darkMode) "Dark Mode" else "Light Mode"}"
+                            }
+                        )
+                        Switch(
+                            checked = viewModel.darkMode,
+                            onCheckedChange = { viewModel.toggleDarkMode() },
+                            modifier = Modifier.semantics {
+                                contentDescription = "Toggle ${if (viewModel.darkMode) "light" else "dark"} mode"
+                            }
+                        )
+                    }
+                }
             }
         }
     }
