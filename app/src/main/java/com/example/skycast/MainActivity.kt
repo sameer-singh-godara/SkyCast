@@ -1,6 +1,5 @@
 package com.example.skycast
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -121,9 +120,8 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("MissingPermission")
     private fun startLocationUpdate() {
-        if (::locationCallback.isInitialized) {
+        if (::locationCallback.isInitialized && permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }) {
             val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 100)
                 .setWaitForAccurateLocation(false)
                 .setMinUpdateIntervalMillis(3000)
@@ -133,8 +131,10 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("MissingPermission")
     private suspend fun fetchLocationWithTimeout(timeoutMs: Long = 5000L): MyLatLng? {
+        if (!permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }) {
+            return null
+        }
         return withTimeoutOrNull(timeoutMs) {
             suspendCancellableCoroutine { continuation ->
                 val callback = object : LocationCallback() {
@@ -420,26 +420,61 @@ class MainActivity : ComponentActivity() {
         coroutineScope: CoroutineScope,
         permissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
     ) {
-        val allPermissionsGranted = permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
-        var isLocationEnabled by remember { mutableStateOf(LocationUtils.isLocationEnabled(context)) }
+        var allPermissionsGranted by remember { mutableStateOf(permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }) }
 
+        // Continuously check permission status every 5 seconds
         LaunchedEffect(Unit) {
             while (true) {
-                isLocationEnabled = LocationUtils.isLocationEnabled(context)
+                allPermissionsGranted = permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
                 delay(5_000L)
             }
         }
 
-        val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
-        val refreshInterval = when {
-            batteryPercentage > 60 -> 30_000L
-            batteryPercentage in 30..60 -> 120_000L
-            else -> Long.MAX_VALUE
-        }
+        if (!allPermissionsGranted) {
+            // Show permission request UI if permissions are not granted
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                ErrorSection(
+                    errorMessage = context.getString(R.string.permissions_required),
+                    color = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { permissionLauncher.launch(permissions) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .semantics { contentDescription = context.getString(R.string.request_permissions) }
+                ) {
+                    Text(context.getString(R.string.request_permissions))
+                }
+            }
+        } else {
+            // Proceed with weather fetching and display if permissions are granted
+            var isLocationEnabled by remember { mutableStateOf(LocationUtils.isLocationEnabled(context)) }
 
-        if (allPermissionsGranted) {
             LaunchedEffect(Unit) {
-                if (!viewModel.hasInitialFetchCompleted) {
+                while (true) {
+                    isLocationEnabled = LocationUtils.isLocationEnabled(context)
+                    delay(5_000L)
+                }
+            }
+
+            val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
+            val refreshInterval = when {
+                batteryPercentage > 60 -> 30_000L
+                batteryPercentage in 30..60 -> 120_000L
+                else -> Long.MAX_VALUE
+            }
+
+            LaunchedEffect(allPermissionsGranted) {
+                if (!viewModel.hasInitialFetchCompleted && allPermissionsGranted) {
                     while (!viewModel.hasInitialFetchCompleted) {
                         val location = fetchLocationWithTimeout()
                         if (location != null && location.lat != 0.0 && location.lng != 0.0) {
@@ -456,8 +491,8 @@ class MainActivity : ComponentActivity() {
             }
 
             if (viewModel.hasInitialFetchCompleted) {
-                LaunchedEffect(isLocationEnabled, refreshInterval, batteryPercentage) {
-                    if (isLocationEnabled) {
+                LaunchedEffect(isLocationEnabled, refreshInterval, batteryPercentage, allPermissionsGranted) {
+                    if (isLocationEnabled && allPermissionsGranted) {
                         var lastUpdateTime = System.currentTimeMillis()
                         while (true) {
                             val currentTime = System.currentTimeMillis()
@@ -475,59 +510,44 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .semantics { contentDescription = context.getString(R.string.home) + " screen content" }
-        ) {
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .semantics { contentDescription = context.getString(R.string.home) + " screen content" }
             ) {
-                if (!allPermissionsGranted) {
-                    ErrorSection(
-                        errorMessage = context.getString(R.string.permissions_required),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        onClick = { permissionLauncher.launch(permissions) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .semantics { contentDescription = context.getString(R.string.request_permissions) }
-                    ) {
-                        Text(context.getString(R.string.request_permissions))
-                    }
-                } else if (!isLocationEnabled) {
-                    ErrorSection(
-                        errorMessage = context.getString(R.string.location_services_disabled),
-                        color = MaterialTheme.colorScheme.error
-                    )
-                } else if (!viewModel.hasInitialFetchCompleted || viewModel.state == STATE.NOTHING) {
-                    LoadingSection()
-                } else {
-                    when (viewModel.state) {
-                        STATE.LOADING -> LoadingSection()
-                        STATE.FAILED -> ErrorSection(
-                            errorMessage = viewModel.errorMessage,
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    if (!isLocationEnabled) {
+                        ErrorSection(
+                            errorMessage = context.getString(R.string.location_services_disabled),
                             color = MaterialTheme.colorScheme.error
                         )
-                        else -> {
-                            if (viewModel.lastFetchedLocation.lat == 0.0 && viewModel.lastFetchedLocation.lng == 0.0) {
-                                LoadingSection()
-                            } else {
-                                WeatherSection(
-                                    weatherResponse = viewModel.weatherResponse,
-                                    locationName = viewModel.locationName
-                                )
-                                ForecastSection(viewModel.forecastResponse)
+                    } else if (!viewModel.hasInitialFetchCompleted || viewModel.state == STATE.NOTHING) {
+                        LoadingSection()
+                    } else {
+                        when (viewModel.state) {
+                            STATE.LOADING -> LoadingSection()
+                            STATE.FAILED -> ErrorSection(
+                                errorMessage = viewModel.errorMessage,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                            else -> {
+                                if (viewModel.lastFetchedLocation.lat == 0.0 && viewModel.lastFetchedLocation.lng == 0.0) {
+                                    LoadingSection()
+                                } else {
+                                    WeatherSection(
+                                        weatherResponse = viewModel.weatherResponse,
+                                        locationName = viewModel.locationName
+                                    )
+                                    ForecastSection(viewModel.forecastResponse)
+                                }
                             }
                         }
                     }
