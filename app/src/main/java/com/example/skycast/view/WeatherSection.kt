@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.skycast.R
@@ -31,12 +32,14 @@ import com.guru.fontawesomecomposelib.FaIconType
 import com.guru.fontawesomecomposelib.FaIcons
 
 @Composable
-fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier) {
+fun WeatherSection(
+    weatherResponse: WeatherResult,
+    locationName: String, // Add locationName parameter
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
-    // Location name
-    val locationName = weatherResponse.name ?: weatherResponse.coord?.let {
-        "${it.lat}/${it.lon}"
-    } ?: context.getString(R.string.na)
+    // Use the provided locationName
+    val displayLocationName = locationName.takeIf { it.isNotEmpty() } ?: context.getString(R.string.na)
 
     // Date and time formatting
     val formattedDateTime = weatherResponse.dt?.let { timestamp ->
@@ -71,12 +74,12 @@ fun WeatherSection(weatherResponse: WeatherResult, modifier: Modifier = Modifier
     Column(
         modifier = modifier
             .fillMaxSize()
-            .semantics { contentDescription = context.getString(R.string.current_weather_description, locationName) },
+            .semantics { contentDescription = context.getString(R.string.current_weather_description, displayLocationName) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Location, Date/Time, Sunrise, and Sunset
         WeatherTitleSection(
-            title = locationName,
+            title = displayLocationName,
             subtitle = context.getString(R.string.sunrise_sunset, sunriseTime, sunsetTime),
             additionalInfo = formattedDateTime,
             titleStyle = MaterialTheme.typography.headlineLarge,
@@ -152,13 +155,18 @@ fun WeatherTitleSection(
             style = titleStyle,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.semantics { contentDescription = title }
+            textAlign = TextAlign.Center, // Center the title text
+            modifier = Modifier
+                .fillMaxWidth() // Ensure the Text takes full width for centering
+                .semantics { contentDescription = title }
         )
         Text(
             text = subtitle,
             style = subtitleStyle,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+            textAlign = TextAlign.Center, // Center the subtitle for consistency
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(top = 4.dp)
                 .semantics { contentDescription = subtitle }
         )
@@ -167,7 +175,9 @@ fun WeatherTitleSection(
                 text = additionalInfo,
                 style = subtitleStyle,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
+                textAlign = TextAlign.Center, // Center the additional info for consistency
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(top = 4.dp)
                     .semantics { contentDescription = additionalInfo }
             )

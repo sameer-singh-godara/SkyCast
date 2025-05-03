@@ -289,7 +289,7 @@ class MainActivity : ComponentActivity() {
                                             }
                                         }
                                         viewModel.updateCurrentLocation(location)
-                                        fetchWeatherInformation(viewModel, location)
+                                        fetchWeatherInformation(viewModel, location, context)
                                     }
                                 },
                                 modifier = Modifier
@@ -404,9 +404,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun fetchWeatherInformation(mainViewModel: MainViewModel, currentLocation: MyLatLng) {
-        mainViewModel.getWeatherByLocation(currentLocation)
-        mainViewModel.getForecastByLocation(currentLocation)
+    private fun fetchWeatherInformation(mainViewModel: MainViewModel, currentLocation: MyLatLng, context: Context) {
+        mainViewModel.getWeatherByLocation(currentLocation, context)
+        mainViewModel.getForecastByLocation(currentLocation, context)
     }
 
     private fun initViewModel() {
@@ -445,7 +445,7 @@ class MainActivity : ComponentActivity() {
                         if (location != null && location.lat != 0.0 && location.lng != 0.0) {
                             viewModel.updateLastFetchedLocation(location)
                             viewModel.updateCurrentLocation(location)
-                            fetchWeatherInformation(viewModel, location)
+                            fetchWeatherInformation(viewModel, location, context)
                             viewModel.setInitialFetchCompleted(true)
                         } else {
                             Toast.makeText(context, context.getString(R.string.retrying_location), Toast.LENGTH_SHORT).show()
@@ -466,7 +466,7 @@ class MainActivity : ComponentActivity() {
                                 if (location != null && location.lat != 0.0 && location.lng != 0.0) {
                                     viewModel.updateLastFetchedLocation(location)
                                     viewModel.updateCurrentLocation(location)
-                                    fetchWeatherInformation(viewModel, location)
+                                    fetchWeatherInformation(viewModel, location, context)
                                 }
                                 lastUpdateTime = currentTime
                             }
@@ -523,7 +523,10 @@ class MainActivity : ComponentActivity() {
                             if (viewModel.lastFetchedLocation.lat == 0.0 && viewModel.lastFetchedLocation.lng == 0.0) {
                                 LoadingSection()
                             } else {
-                                WeatherSection(viewModel.weatherResponse)
+                                WeatherSection(
+                                    weatherResponse = viewModel.weatherResponse,
+                                    locationName = viewModel.locationName
+                                )
                                 ForecastSection(viewModel.forecastResponse)
                             }
                         }
@@ -608,7 +611,10 @@ class MainActivity : ComponentActivity() {
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
-                                WeatherSection(viewModel.searchWeatherResponse)
+                                WeatherSection(
+                                    weatherResponse = viewModel.searchWeatherResponse,
+                                    locationName = viewModel.searchLocationName
+                                )
                                 Spacer(modifier = Modifier.height(16.dp))
                             }
                             if (viewModel.searchForecastResponse.list?.isNotEmpty() == true) {

@@ -19,6 +19,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 enum class STATE {
     IDLE,
@@ -47,6 +48,8 @@ class MainViewModel : ViewModel() {
         private set
     var hasInitialFetchCompleted by mutableStateOf(false)
         private set
+    var locationName by mutableStateOf("")
+        private set
 
     var searchState by mutableStateOf(STATE.IDLE)
         private set
@@ -55,6 +58,8 @@ class MainViewModel : ViewModel() {
     var searchForecastResponse by mutableStateOf(ForecastResult())
         private set
     var searchErrorMessage by mutableStateOf("")
+        private set
+    var searchLocationName by mutableStateOf("")
         private set
 
     var darkMode by mutableStateOf(false)
@@ -100,7 +105,7 @@ class MainViewModel : ViewModel() {
         Log.d(TAG, "Language set to: $languageCode")
     }
 
-    fun getWeatherByLocation(latLng: MyLatLng) {
+    fun getWeatherByLocation(latLng: MyLatLng, context: Context? = null) {
         Log.d(TAG, "Fetching weather for coordinates: $latLng")
         viewModelScope.launch {
             if (hasInitialFetchCompleted && lastFetchedLocation == latLng && state == STATE.SUCCESS) {
@@ -118,6 +123,11 @@ class MainViewModel : ViewModel() {
                     forecastResponse = forecastDeferred.await()
                     state = STATE.SUCCESS
                     Log.d(TAG, "Weather and forecast fetch successful: ${weatherResponse.name}")
+
+                    // Fetch the localized location name if context is provided
+                    if (context != null) {
+                        locationName = getLocationNameFromCoordinates(context, latLng) ?: weatherResponse.name ?: "${latLng.lat}/${latLng.lng}"
+                    }
                 }
             } catch (e: Exception) {
                 errorMessage = e.message ?: "Unknown error occurred"
@@ -127,9 +137,9 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    fun getForecastByLocation(latLng: MyLatLng) {
+    fun getForecastByLocation(latLng: MyLatLng, context: Context? = null) {
         Log.d(TAG, "getForecastByLocation called, delegating to getWeatherByLocation for: $latLng")
-        getWeatherByLocation(latLng)
+        getWeatherByLocation(latLng, context)
     }
 
     fun getWeatherByLocationName(context: Context, locationName: String) {
@@ -148,6 +158,9 @@ class MainViewModel : ViewModel() {
                         searchForecastResponse = forecastDeferred.await()
                         searchState = STATE.SUCCESS
                         Log.d(TAG, "Weather and forecast fetch successful for $locationName")
+
+                        // Fetch the location name in the selected language using the coordinates
+                        searchLocationName = getLocationNameFromCoordinates(context, coordinates) ?: locationName
                     }
                 } else {
                     searchErrorMessage = context.getString(R.string.location_not_found)
@@ -165,19 +178,90 @@ class MainViewModel : ViewModel() {
     private suspend fun getCoordinatesFromLocationName(context: Context, locationName: String): MyLatLng? {
         return withContext(Dispatchers.IO) {
             try {
-                val geocoder = Geocoder(context)
-                val addresses = geocoder.getFromLocationName(locationName, 1)
-                if (!addresses.isNullOrEmpty()) {
-                    val address = addresses[0]
-                    MyLatLng(address.latitude, address.longitude).also {
-                        Log.d(TAG, "Geocoded $locationName to coordinates: $it")
+                // Step 1: Geocode the location name in English to ensure reliability
+                val englishLocale = Locale("en", "US")
+                val englishGeocoder = Geocoder(context, englishLocale)
+                val englishAddresses = englishGeocoder.getFromLocationName(locationName, 1)
+                if (englishAddresses.isNullOrEmpty()) {
+                    Log.w(TAG, "No coordinates found for location: $locationName in English")
+                    return@withContext null
+                }
+
+                val address = englishAddresses[0]
+                val coordinates = MyLatLng(address.latitude, address.longitude)
+                Log.d(TAG, "Geocoded $locationName to coordinates: $coordinates in English")
+                coordinates
+            } catch (e: Exception) {
+                Log.e(TAG, "Geocoding error for $locationName in English: ${e.message}")
+                null
+            }
+        }
+    }
+
+    private suspend fun getLocationNameFromCoordinates(context: Context, latLng: MyLatLng): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                // Step 1: Fetch the address in English to ensure we get a reliable full address
+                val englishLocale = Locale("en", "US")
+                val englishGeocoder = Geocoder(context, englishLocale)
+                val englishAddresses = englishGeocoder.getFromLocation(latLng.lat, latLng.lng, 1)
+                if (englishAddresses.isNullOrEmpty()) {
+                    Log.w(TAG, "No English address found for coordinates: $latLng")
+                    return@withContext null
+                }
+
+                val englishAddress = englishAddresses[0]
+                val englishAddressParts = mutableListOf<String>()
+                englishAddress.subLocality?.let { if (it.isNotBlank()) englishAddressParts.add(it) }
+                englishAddress.locality?.let { if (it.isNotBlank()) englishAddressParts.add(it) }
+                englishAddress.adminArea?.let { if (it.isNotBlank()) englishAddressParts.add(it) }
+                englishAddress.countryName?.let { if (it.isNotBlank()) englishAddressParts.add(it) }
+
+                if (englishAddressParts.isEmpty()) {
+                    Log.w(TAG, "No English address parts found for coordinates: $latLng")
+                    return@withContext null
+                }
+
+                val fullEnglishAddress = englishAddressParts.joinToString(", ")
+                Log.d(TAG, "Fetched English address for coordinates $latLng: $fullEnglishAddress")
+
+                // Step 2: Use the selected language's locale to translate the full address
+                val targetLocale = when (language) {
+                    "hi" -> Locale("hi", "IN") // Hindi (India)
+                    "pa" -> Locale("pa", "IN") // Punjabi (India)
+                    else -> Locale("en", "US") // Default to English (US)
+                }
+
+                // If the target language is English, return the English address directly
+                if (language == "en") {
+                    return@withContext fullEnglishAddress
+                }
+
+                // Attempt to translate the full English address by geocoding it again in the target language
+                val targetGeocoder = Geocoder(context, targetLocale)
+                val targetAddresses = targetGeocoder.getFromLocationName(fullEnglishAddress, 1)
+                if (!targetAddresses.isNullOrEmpty()) {
+                    val targetAddress = targetAddresses[0]
+                    val targetAddressParts = mutableListOf<String>()
+                    targetAddress.subLocality?.let { if (it.isNotBlank()) targetAddressParts.add(it) }
+                    targetAddress.locality?.let { if (it.isNotBlank()) targetAddressParts.add(it) }
+                    targetAddress.adminArea?.let { if (it.isNotBlank()) targetAddressParts.add(it) }
+                    targetAddress.countryName?.let { if (it.isNotBlank()) targetAddressParts.add(it) }
+
+                    if (targetAddressParts.isNotEmpty()) {
+                        val translatedAddress = targetAddressParts.joinToString(", ")
+                        Log.d(TAG, "Translated address for coordinates $latLng to $language: $translatedAddress")
+                        translatedAddress
+                    } else {
+                        Log.w(TAG, "No translated address parts found for $fullEnglishAddress in language: $language, falling back to English")
+                        fullEnglishAddress
                     }
                 } else {
-                    Log.w(TAG, "No coordinates found for location: $locationName")
-                    null
+                    Log.w(TAG, "No translated address found for $fullEnglishAddress in language: $language, falling back to English")
+                    fullEnglishAddress
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Geocoding error for $locationName: ${e.message}")
+                Log.e(TAG, "Reverse geocoding error for $latLng in language $language: ${e.message}")
                 null
             }
         }
