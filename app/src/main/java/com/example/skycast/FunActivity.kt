@@ -36,11 +36,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.ui.semantics.LiveRegionMode
 import com.example.skycast.ui.theme.SkyCastTheme
+import com.example.skycast.utils.LanguageUtils
 import kotlinx.coroutines.delay
 
 class FunActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Apply saved locale
+        LanguageUtils.applySavedLocale(this)
+
         val darkMode = intent.getBooleanExtra("darkMode", false)
         setContent {
             SkyCastTheme(darkTheme = darkMode) {
@@ -76,9 +81,9 @@ fun FunScreen() {
             // Interval 1: Fetching location - 15% for 5 seconds
             showCircularProgress = false
             progress = 0.15f
-            message = "Fetching location"
+            message = context.getString(R.string.fetching_location)
             isFinalMessage = false
-            delay(500L) // Wait for transition
+            delay(500L)
             showCircularProgress = true
             delay(5000L)
             showCircularProgress = false
@@ -86,7 +91,7 @@ fun FunScreen() {
             // Interval 2: Getting results - 65% for 15 seconds
             showCircularProgress = false
             progress = 0.65f
-            message = "Getting results"
+            message = context.getString(R.string.getting_results)
             isFinalMessage = false
             delay(500L)
             showCircularProgress = true
@@ -96,7 +101,7 @@ fun FunScreen() {
             // Interval 3: Processing data - 99% for 10 seconds
             showCircularProgress = false
             progress = 0.99f
-            message = "Processing data"
+            message = context.getString(R.string.processing_data)
             isFinalMessage = false
             delay(500L)
             showCircularProgress = true
@@ -106,9 +111,8 @@ fun FunScreen() {
             // Interval 4: Go out and see - 100% for 5 seconds
             showCircularProgress = false
             progress = 1.0f
-            message = "Go outside have some rest and see yourself"
+            message = context.getString(R.string.go_outside_message)
             isFinalMessage = true
-            showCircularProgress = true
             showCircularProgress = false
 
             // Mark as complete and keep activity open for 3 seconds
@@ -121,7 +125,7 @@ fun FunScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
-            .semantics { contentDescription = "Fun activity screen" },
+            .semantics { contentDescription = context.getString(R.string.fun_feature) + " screen" },
         verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -132,13 +136,13 @@ fun FunScreen() {
         ) {
             if (isComplete) {
                 Text(
-                    text = "Go outside have some rest and see yourself",
+                    text = context.getString(R.string.go_outside_message),
                     style = MaterialTheme.typography.displayLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics {
-                            contentDescription = "Final message: Go outside have some rest and see yourself"
+                            contentDescription = context.getString(R.string.go_outside_message)
                             liveRegion = LiveRegionMode.Polite
                         }
                 )
@@ -147,7 +151,7 @@ fun FunScreen() {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .size(48.dp)
-                            .semantics { contentDescription = "Waiting for progress" },
+                            .semantics { contentDescription = context.getString(R.string.loading) },
                         color = MaterialTheme.colorScheme.primary,
                         strokeWidth = 4.dp
                     )
@@ -158,7 +162,7 @@ fun FunScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(8.dp)
-                        .semantics { contentDescription = "Progress bar at ${(animatedProgress * 100).toInt()}%" },
+                        .semantics { contentDescription = context.getString(R.string.progress_bar, (animatedProgress * 100).toInt()) },
                     color = Color.Green,
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
@@ -170,7 +174,7 @@ fun FunScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics {
-                            contentDescription = "Progress percentage: ${(animatedProgress * 100).toInt()}%"
+                            contentDescription = context.getString(R.string.progress_percentage, (animatedProgress * 100).toInt())
                             liveRegion = LiveRegionMode.Polite
                         }
                 )
@@ -182,7 +186,7 @@ fun FunScreen() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics {
-                            contentDescription = "Status message: $message"
+                            contentDescription = context.getString(R.string.status_message, message)
                             liveRegion = LiveRegionMode.Polite
                         }
                 )
@@ -191,9 +195,9 @@ fun FunScreen() {
                     onClick = { isStarted = true },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = "Get weather data button" }
+                        .semantics { contentDescription = context.getString(R.string.get_weather_data) }
                 ) {
-                    Text("Get Weather Data")
+                    Text(context.getString(R.string.get_weather_data))
                 }
             }
         }
@@ -201,9 +205,9 @@ fun FunScreen() {
             onClick = { (context as? ComponentActivity)?.finish() },
             modifier = Modifier
                 .fillMaxWidth()
-                .semantics { contentDescription = "Back to settings button" }
+                .semantics { contentDescription = context.getString(R.string.back) }
         ) {
-            Text("Back")
+            Text(context.getString(R.string.back))
         }
     }
 }

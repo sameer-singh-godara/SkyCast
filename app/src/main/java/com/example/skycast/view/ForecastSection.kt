@@ -17,12 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.skycast.constant.Const.Companion.NA
+import com.example.skycast.R
 import com.example.skycast.model.forecast.ForecastResult
 import com.example.skycast.utils.Utils.Companion.buildIcon
 import com.example.skycast.utils.Utils.Companion.timestampToHumanDate
@@ -32,10 +33,11 @@ fun ForecastSection(
     forecastResponse: ForecastResult,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxSize()
-            .semantics { contentDescription = "Weather forecast for the next few days" },
+            .semantics { contentDescription = context.getString(R.string.weather_forecast_description) },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -44,22 +46,22 @@ fun ForecastSection(
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .semantics { contentDescription = "List of forecast tiles" },
+                        .semantics { contentDescription = context.getString(R.string.forecast_list_description) },
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(listForecast) { item ->
                         ForecastTile(
-                            temp = item.main?.temp?.let { "${it}°C" } ?: NA,
+                            temp = item.main?.temp?.let { "${it}°C" } ?: context.getString(R.string.na),
                             image = item.weather?.firstOrNull()?.icon?.let {
                                 buildIcon(it, isBigSize = false)
-                            } ?: NA,
+                            } ?: context.getString(R.string.na),
                             time = item.dt?.let {
                                 timestampToHumanDate(it.toLong(), "EEE, HH:mm\ndd-MM-YYYY")
-                            } ?: NA,
-                            feelsLike = item.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: NA,
-                            pop = item.pop?.let { "${(it * 100).toInt()}%" } ?: NA,
-                            windSpeed = item.wind?.speed?.let { "${it.toInt()} m/s" } ?: NA,
-                            cloudiness = item.clouds?.all?.let { "$it%" } ?: NA
+                            } ?: context.getString(R.string.na),
+                            feelsLike = item.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.na),
+                            pop = item.pop?.let { "${(it * 100).toInt()}%" } ?: context.getString(R.string.na),
+                            windSpeed = item.wind?.speed?.let { "${it.toInt()} m/s" } ?: context.getString(R.string.na),
+                            cloudiness = item.clouds?.all?.let { "$it%" } ?: context.getString(R.string.na)
                         )
                     }
                 }
@@ -79,12 +81,13 @@ fun ForecastTile(
     cloudiness: String,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Card(
         modifier = modifier
             .padding(10.dp)
             .width(130.dp)
             .semantics {
-                contentDescription = "Forecast for $time: $temp, feels like $feelsLike, $pop chance of precipitation, wind $windSpeed, $cloudiness cloud cover"
+                contentDescription = context.getString(R.string.app_name) + " Forecast for $time: $temp, " + context.getString(R.string.feels_like, feelsLike) + ", " + context.getString(R.string.precipitation_probability, pop) + ", " + context.getString(R.string.wind_speed, windSpeed) + ", " + context.getString(R.string.cloudiness, cloudiness)
             },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -104,16 +107,16 @@ fun ForecastTile(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .padding(bottom = 8.dp)
-                    .semantics { contentDescription = "Temperature: $temp" }
+                    .semantics { contentDescription = context.getString(R.string.temperature, temp) }
             )
 
             AsyncImage(
                 model = image,
-                contentDescription = "Forecast weather icon",
+                contentDescription = context.getString(R.string.weather_icon_description),
                 modifier = Modifier
                     .width(60.dp)
                     .height(60.dp)
-                    .semantics { contentDescription = "Weather icon for forecast" },
+                    .semantics { contentDescription = context.getString(R.string.weather_icon_description) },
                 contentScale = ContentScale.Fit
             )
 
@@ -123,40 +126,40 @@ fun ForecastTile(
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 8.dp)
-                    .semantics { contentDescription = "Time: $time" },
+                    .semantics { contentDescription = context.getString(R.string.time, time) },
                 textAlign = TextAlign.Center
             )
             Text(
-                text = "Feels: $feelsLike",
+                text = context.getString(R.string.feels_like, feelsLike),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .semantics { contentDescription = "Feels like: $feelsLike" }
+                    .semantics { contentDescription = context.getString(R.string.feels_like, feelsLike) }
             )
             Text(
-                text = "Pop: $pop",
+                text = context.getString(R.string.precipitation_probability, pop),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .semantics { contentDescription = "Precipitation probability: $pop" }
+                    .semantics { contentDescription = context.getString(R.string.precipitation_probability, pop) }
             )
             Text(
-                text = "Wind: $windSpeed",
+                text = context.getString(R.string.wind_speed, windSpeed),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .semantics { contentDescription = "Wind speed: $windSpeed" }
+                    .semantics { contentDescription = context.getString(R.string.wind_speed, windSpeed) }
             )
             Text(
-                text = "Clouds: $cloudiness",
+                text = context.getString(R.string.cloudiness, cloudiness),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .semantics { contentDescription = "Cloudiness: $cloudiness" }
+                    .semantics { contentDescription = context.getString(R.string.cloudiness, cloudiness) }
             )
         }
     }

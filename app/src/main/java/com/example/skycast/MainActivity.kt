@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -37,11 +38,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -55,10 +56,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.capitalize
-import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -74,8 +74,10 @@ import com.example.skycast.model.MyLatLng
 import com.example.skycast.ui.theme.LocalFontScale
 import com.example.skycast.ui.theme.SkyCastTheme
 import com.example.skycast.utils.BatteryUtils
+import com.example.skycast.utils.LanguageUtils
 import com.example.skycast.utils.LocationUtils
 import com.example.skycast.view.ForecastSection
+import com.example.skycast.view.LanguageSelectionDialog
 import com.example.skycast.view.WeatherSection
 import com.example.skycast.viewmodel.MainViewModel
 import com.example.skycast.viewmodel.STATE
@@ -160,15 +162,23 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Apply saved locale before setting content
+        LanguageUtils.applySavedLocale(this)
+
         initLocationClient()
         initViewModel()
 
         setContent {
             val viewModel: MainViewModel = viewModel()
 
+            // Sync ViewModel language with saved preference
+            LaunchedEffect(Unit) {
+                viewModel.setLanguage(this@MainActivity, LanguageUtils.getSavedLanguage(this@MainActivity) ?: "en")
+            }
+
             CompositionLocalProvider(LocalFontScale provides viewModel.fontSizeScale) {
-                LaunchedEffect(viewModel.darkMode, viewModel.fontSizeScale) {
-                    // Trigger recomposition on theme or font size change
+                LaunchedEffect(viewModel.darkMode, viewModel.fontSizeScale, viewModel.language) {
+                    // Trigger recomposition on theme, font size, or language change
                 }
 
                 SkyCastTheme(darkTheme = viewModel.darkMode, fontScale = viewModel.fontSizeScale) {
@@ -186,6 +196,25 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val systemUiController = rememberSystemUiController()
         val coroutineScope = rememberCoroutineScope()
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
+        // Permission request on app launch
+        val permissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionMap ->
+            val areGranted = permissionMap.values.all { it }
+            if (areGranted) {
+                locationRequired = true
+                Toast.makeText(context, context.getString(R.string.permission_granted), Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, context.getString(R.string.permission_denied), Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            if (permissions.any { ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED }) {
+                permissionLauncher.launch(permissions)
+            }
+        }
 
         DisposableEffect(Unit) {
             systemUiController.isSystemBarsVisible = true
@@ -200,16 +229,30 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+        // Monitor navigation route changes to prevent issues
+        LaunchedEffect(currentRoute) {
+            if (navController.graph != null) {
+                if (currentRoute !in listOf(Screen.Home.route, Screen.Search.route, Screen.Settings.route)) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            }
+        }
+
         Scaffold(
-            modifier = Modifier.semantics { contentDescription = "SkyCast Main Navigation" },
+            modifier = Modifier.semantics { contentDescription = context.getString(R.string.app_name) + " Main Navigation" },
             topBar = {
                 TopAppBar(
                     title = {
                         Text(
-                            text = "SkyCast",
+                            text = context.getString(R.string.app_name),
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.onPrimary,
-                            modifier = Modifier.semantics { contentDescription = "SkyCast App Title" }
+                            modifier = Modifier.semantics { contentDescription = context.getString(R.string.app_name) + " App Title" }
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
@@ -221,13 +264,12 @@ class MainActivity : ComponentActivity() {
             bottomBar = {
                 Column {
                     // Show manual refresh button only on Home screen if battery < 30% and location is enabled
-                    val navBackStackEntry by navController.currentBackStackEntryAsState()
-                    val currentRoute = navBackStackEntry?.destination?.route
                     val isLocationEnabled = LocationUtils.isLocationEnabled(context)
                     val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
                     val shouldAutoRefresh = BatteryUtils.shouldAutoRefresh(batteryPercentage)
+                    val allPermissionsGranted = permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
 
-                    if (currentRoute == Screen.Home.route && isLocationEnabled && !shouldAutoRefresh && batteryPercentage != -1) {
+                    if (currentRoute == Screen.Home.route && isLocationEnabled && !shouldAutoRefresh && batteryPercentage != -1 && allPermissionsGranted) {
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -242,7 +284,7 @@ class MainActivity : ComponentActivity() {
                                         while (location == null || location.lat == 0.0 || location.lng == 0.0) {
                                             location = fetchLocationWithTimeout()
                                             if (location == null || location.lat == 0.0 || location.lng == 0.0) {
-                                                Toast.makeText(context, "Retrying to fetch location...", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.retrying_location), Toast.LENGTH_SHORT).show()
                                                 delay(5000L)
                                             }
                                         }
@@ -252,30 +294,28 @@ class MainActivity : ComponentActivity() {
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .semantics { contentDescription = "Refresh weather data" }
+                                    .semantics { contentDescription = context.getString(R.string.refresh) + " weather data" }
                             ) {
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.Center,
-                                    modifier = Modifier.semantics { contentDescription = "Refresh button" }
+                                    modifier = Modifier.semantics { contentDescription = context.getString(R.string.refresh) + " button" }
                                 ) {
                                     Icon(
                                         Icons.Default.Refresh,
-                                        contentDescription = null, // Described by parent semantics
-                                        modifier = Modifier.semantics { contentDescription = "Refresh icon" }
+                                        contentDescription = null,
+                                        modifier = Modifier.semantics { contentDescription = context.getString(R.string.refresh) + " icon" }
                                     )
                                     Spacer(modifier = Modifier.padding(horizontal = 4.dp))
-                                    Text("Refresh")
+                                    Text(context.getString(R.string.refresh))
                                 }
                             }
                         }
                     }
 
                     NavigationBar(
-                        modifier = Modifier.semantics { contentDescription = "Bottom navigation bar" }
+                        modifier = Modifier.semantics { contentDescription = context.getString(R.string.app_name) + " Bottom navigation bar" }
                     ) {
-                        val currentNavRoute = navBackStackEntry?.destination?.route
-
                         listOf(
                             Screen.Home to Icons.Default.Home,
                             Screen.Search to Icons.Default.Search,
@@ -285,26 +325,64 @@ class MainActivity : ComponentActivity() {
                                 icon = {
                                     Icon(
                                         icon,
-                                        contentDescription = "${screen.route.capitalize(Locale.current)} icon",
-                                        modifier = Modifier.semantics { contentDescription = "${screen.route.capitalize(Locale.current)} navigation icon" }
+                                        contentDescription = context.getString(
+                                            when (screen) {
+                                                Screen.Home -> R.string.home
+                                                Screen.Search -> R.string.search
+                                                Screen.Settings -> R.string.settings
+                                            }
+                                        ) + " icon",
+                                        modifier = Modifier.semantics {
+                                            contentDescription = context.getString(
+                                                when (screen) {
+                                                    Screen.Home -> R.string.home
+                                                    Screen.Search -> R.string.search
+                                                    Screen.Settings -> R.string.settings
+                                                }
+                                            ) + " navigation icon"
+                                        }
                                     )
                                 },
                                 label = {
                                     Text(
-                                        screen.route.capitalize(Locale.current),
-                                        modifier = Modifier.semantics { contentDescription = "${screen.route.capitalize(Locale.current)} navigation label" }
+                                        context.getString(
+                                            when (screen) {
+                                                Screen.Home -> R.string.home
+                                                Screen.Search -> R.string.search
+                                                Screen.Settings -> R.string.settings
+                                            }
+                                        ),
+                                        modifier = Modifier.semantics {
+                                            contentDescription = context.getString(
+                                                when (screen) {
+                                                    Screen.Home -> R.string.home
+                                                    Screen.Search -> R.string.search
+                                                    Screen.Settings -> R.string.settings
+                                                }
+                                            ) + " navigation label"
+                                        }
                                     )
                                 },
-                                selected = currentNavRoute == screen.route,
+                                selected = currentRoute == screen.route,
                                 onClick = {
                                     navController.navigate(screen.route) {
-                                        popUpTo(Screen.Home.route) {
+                                        popUpTo(navController.graph.startDestinationId) {
                                             saveState = true
-                                            inclusive = screen == Screen.Home
+                                            inclusive = false
                                         }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
                                 },
-                                modifier = Modifier.semantics { contentDescription = "Navigate to ${screen.route.capitalize(Locale.current)}" }
+                                modifier = Modifier.semantics {
+                                    contentDescription = "Navigate to " + context.getString(
+                                        when (screen) {
+                                            Screen.Home -> R.string.home
+                                            Screen.Search -> R.string.search
+                                            Screen.Settings -> R.string.settings
+                                        }
+                                    )
+                                }
                             )
                         }
                     }
@@ -315,12 +393,12 @@ class MainActivity : ComponentActivity() {
                 .fillMaxSize()
                 .padding(innerPadding)) {
                 NavHost(
-                    navController,
+                    navController = navController,
                     startDestination = Screen.Home.route
                 ) {
-                    composable(Screen.Home.route) { LocationScreen(context, viewModel, coroutineScope) }
+                    composable(Screen.Home.route) { LocationScreen(context, viewModel, coroutineScope, permissionLauncher) }
                     composable(Screen.Search.route) { SearchScreen(context, viewModel) }
-                    composable(Screen.Settings.route) { SettingsScreen(viewModel) }
+                    composable(Screen.Settings.route) { SettingsScreen(context, viewModel) }
                 }
             }
         }
@@ -339,59 +417,47 @@ class MainActivity : ComponentActivity() {
     private fun LocationScreen(
         context: Context,
         viewModel: MainViewModel,
-        coroutineScope: CoroutineScope
+        coroutineScope: CoroutineScope,
+        permissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<Array<String>, Map<String, Boolean>>
     ) {
-        val launcherMultiplePermissions = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionMap ->
-            val areGranted = permissionMap.values.all { it }
-            if (areGranted) {
-                locationRequired = true
-                Toast.makeText(context, "PERMISSION GRANTED", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "PERMISSION DENIED", Toast.LENGTH_SHORT).show()
-            }
-        }
-
-        // Monitor battery level
-        val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
-        val refreshInterval = when {
-            batteryPercentage > 60 -> 30_000L // 30 seconds
-            batteryPercentage in 30..60 -> 120_000L // 2 minutes
-            else -> Long.MAX_VALUE // Disable auto-refresh for < 30%
-        }
-
-        // Continuously check location services status
+        val allPermissionsGranted = permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
         var isLocationEnabled by remember { mutableStateOf(LocationUtils.isLocationEnabled(context)) }
 
         LaunchedEffect(Unit) {
             while (true) {
                 isLocationEnabled = LocationUtils.isLocationEnabled(context)
-                delay(5_000L) // Check every 5 seconds
+                delay(5_000L)
             }
         }
 
-        // Initial fetch with retries until success
-        LaunchedEffect(Unit) {
-            if (!viewModel.hasInitialFetchCompleted) {
-                while (!viewModel.hasInitialFetchCompleted) {
-                    val location = fetchLocationWithTimeout()
-                    if (location != null && location.lat != 0.0 && location.lng != 0.0) {
-                        viewModel.updateLastFetchedLocation(location)
-                        viewModel.updateCurrentLocation(location)
-                        fetchWeatherInformation(viewModel, location)
-                        viewModel.setInitialFetchCompleted(true)
-                    } else {
-                        Toast.makeText(context, "Retrying to fetch location...", Toast.LENGTH_SHORT).show()
-                        delay(5_000L) // Wait 5 seconds before retrying
+        val batteryPercentage = BatteryUtils.observeBatteryLevel(context)
+        val refreshInterval = when {
+            batteryPercentage > 60 -> 30_000L
+            batteryPercentage in 30..60 -> 120_000L
+            else -> Long.MAX_VALUE
+        }
+
+        if (allPermissionsGranted) {
+            LaunchedEffect(Unit) {
+                if (!viewModel.hasInitialFetchCompleted) {
+                    while (!viewModel.hasInitialFetchCompleted) {
+                        val location = fetchLocationWithTimeout()
+                        if (location != null && location.lat != 0.0 && location.lng != 0.0) {
+                            viewModel.updateLastFetchedLocation(location)
+                            viewModel.updateCurrentLocation(location)
+                            fetchWeatherInformation(viewModel, location)
+                            viewModel.setInitialFetchCompleted(true)
+                        } else {
+                            Toast.makeText(context, context.getString(R.string.retrying_location), Toast.LENGTH_SHORT).show()
+                            delay(5_000L)
+                        }
                     }
                 }
             }
-        }
 
-        // Periodic location fetch with battery-saving technique after initial fetch
-        if (viewModel.hasInitialFetchCompleted) {
-            LaunchedEffect(isLocationEnabled, refreshInterval, batteryPercentage) {
-                if (isLocationEnabled) {
-                    if (permissions.all { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }) {
+            if (viewModel.hasInitialFetchCompleted) {
+                LaunchedEffect(isLocationEnabled, refreshInterval, batteryPercentage) {
+                    if (isLocationEnabled) {
                         var lastUpdateTime = System.currentTimeMillis()
                         while (true) {
                             val currentTime = System.currentTimeMillis()
@@ -404,10 +470,8 @@ class MainActivity : ComponentActivity() {
                                 }
                                 lastUpdateTime = currentTime
                             }
-                            delay(1000L) // Check interval timing every second
+                            delay(1000L)
                         }
-                    } else {
-                        launcherMultiplePermissions.launch(permissions)
                     }
                 }
             }
@@ -416,7 +480,7 @@ class MainActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .semantics { contentDescription = "Home screen content" }
+                .semantics { contentDescription = context.getString(R.string.home) + " screen content" }
         ) {
             Column(
                 modifier = Modifier
@@ -426,9 +490,24 @@ class MainActivity : ComponentActivity() {
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (!isLocationEnabled) {
+                if (!allPermissionsGranted) {
                     ErrorSection(
-                        errorMessage = "Location services are not enabled. Please enable location to view weather data.",
+                        errorMessage = context.getString(R.string.permissions_required),
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = { permissionLauncher.launch(permissions) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .semantics { contentDescription = context.getString(R.string.request_permissions) }
+                    ) {
+                        Text(context.getString(R.string.request_permissions))
+                    }
+                } else if (!isLocationEnabled) {
+                    ErrorSection(
+                        errorMessage = context.getString(R.string.location_services_disabled),
                         color = MaterialTheme.colorScheme.error
                     )
                 } else if (!viewModel.hasInitialFetchCompleted || viewModel.state == STATE.NOTHING) {
@@ -463,8 +542,8 @@ class MainActivity : ComponentActivity() {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .semantics { contentDescription = "Search screen content" },
-            contentAlignment = Alignment.TopEnd
+                .semantics { contentDescription = context.getString(R.string.search) + " screen content" },
+            contentAlignment = Alignment.TopCenter
         ) {
             Column(
                 modifier = Modifier
@@ -477,19 +556,19 @@ class MainActivity : ComponentActivity() {
                 OutlinedTextField(
                     value = locationQuery,
                     onValueChange = { locationQuery = it },
-                    label = { Text("Enter city name (e.g., London)", color = MaterialTheme.colorScheme.onSurfaceVariant) },
+                    label = { Text(context.getString(R.string.enter_city_name), color = MaterialTheme.colorScheme.onSurfaceVariant) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .semantics { contentDescription = "City name input field" },
+                        .semantics { contentDescription = context.getString(R.string.enter_city_name) + " input field" },
                     textStyle = MaterialTheme.typography.bodyLarge.copy(color = MaterialTheme.colorScheme.onSurface),
-                    colors = TextFieldDefaults.colors(
+                    colors = OutlinedTextFieldDefaults.colors(
                         focusedTextColor = MaterialTheme.colorScheme.onSurface,
                         unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
                         focusedContainerColor = MaterialTheme.colorScheme.surface,
                         unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-                        unfocusedIndicatorColor = MaterialTheme.colorScheme.outline,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
                         cursorColor = MaterialTheme.colorScheme.primary,
                         focusedLabelColor = MaterialTheme.colorScheme.primary,
                         unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -509,10 +588,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
-                        .semantics { contentDescription = if (isLoading) "Searching" else "Search for weather by city" },
+                        .semantics { contentDescription = if (isLoading) context.getString(R.string.searching) else context.getString(R.string.search_button) + " for weather by city" },
                     enabled = !isLoading && locationQuery.isNotBlank()
                 ) {
-                    Text(if (isLoading) "Searching..." else "Search")
+                    Text(if (isLoading) context.getString(R.string.searching) else context.getString(R.string.search_button))
                 }
 
                 when (viewModel.searchState) {
@@ -525,7 +604,7 @@ class MainActivity : ComponentActivity() {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .semantics { contentDescription = "Search results" },
+                                .semantics { contentDescription = context.getString(R.string.search) + " results" },
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
@@ -559,18 +638,19 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
-    fun SettingsScreen(viewModel: MainViewModel) {
+    fun SettingsScreen(context: Context, viewModel: MainViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
                 .padding(16.dp)
-                .semantics { contentDescription = "Settings screen content" }
+                .semantics { contentDescription = context.getString(R.string.settings) + " screen content" }
         ) {
             // Font Size Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .semantics { contentDescription = "Font size settings card" },
+                    .semantics { contentDescription = context.getString(R.string.font_size) + " settings card" },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -583,19 +663,19 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Font Size",
+                        text = context.getString(R.string.font_size),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         textDecoration = TextDecoration.Underline,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Font size settings underlined title" }
+                            .semantics { contentDescription = context.getString(R.string.font_size) + " settings underlined title" }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Font size adjustment controls" },
+                            .semantics { contentDescription = context.getString(R.string.font_size) + " adjustment controls" },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -604,34 +684,38 @@ class MainActivity : ComponentActivity() {
                             enabled = viewModel.fontSizeScale > 0.5f,
                             modifier = Modifier
                                 .weight(1f)
-                                .semantics { contentDescription = "Decrease font size" }
-                        ) { Text("-ve") }
+                                .semantics { contentDescription = context.getString(R.string.decrease_font_size) }
+                        ) { Text(context.getString(R.string.decrease_font_size)) }
                         Text(
-                            text = when {
-                                viewModel.fontSizeScale <= 0.8f -> "Small"
-                                viewModel.fontSizeScale <= 1.0f -> "Medium"
-                                else -> "Large"
-                            },
+                            text = context.getString(
+                                when {
+                                    viewModel.fontSizeScale <= 0.8f -> R.string.small
+                                    viewModel.fontSizeScale <= 1.0f -> R.string.medium
+                                    else -> R.string.large
+                                }
+                            ),
                             style = MaterialTheme.typography.titleLarge,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .weight(1f)
                                 .padding(horizontal = 8.dp)
                                 .semantics {
-                                    contentDescription = "Current font size: ${when {
-                                        viewModel.fontSizeScale <= 0.8f -> "Small"
-                                        viewModel.fontSizeScale <= 1.0f -> "Medium"
-                                        else -> "Large"
-                                    }}"
+                                    contentDescription = context.getString(R.string.font_size) + ": " + context.getString(
+                                        when {
+                                            viewModel.fontSizeScale <= 0.8f -> R.string.small
+                                            viewModel.fontSizeScale <= 1.0f -> R.string.medium
+                                            else -> R.string.large
+                                        }
+                                    )
                                 }
                         )
                         Button(
                             onClick = { viewModel.increaseFontSize() },
                             enabled = viewModel.fontSizeScale < 1.5f,
                             modifier = Modifier
-                                .weight(1f)
-                                .semantics { contentDescription = "Increase font size" }
-                        ) { Text("+ve") }
+                                .width(100.dp)
+                                .semantics { contentDescription = context.getString(R.string.increase_font_size) }
+                        ) { Text(context.getString(R.string.increase_font_size)) }
                     }
                 }
             }
@@ -642,7 +726,7 @@ class MainActivity : ComponentActivity() {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .semantics { contentDescription = "Appearance settings card" },
+                    .semantics { contentDescription = context.getString(R.string.appearance) + " settings card" },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -655,36 +739,76 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Appearance",
+                        text = context.getString(R.string.appearance),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         textDecoration = TextDecoration.Underline,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Appearance settings underlined title" }
+                            .semantics { contentDescription = context.getString(R.string.appearance) + " settings underlined title" }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Theme toggle" },
+                            .semantics { contentDescription = context.getString(R.string.appearance) + " toggle" },
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = if (viewModel.darkMode) "Dark Mode" else "Light Mode",
+                            text = context.getString(if (viewModel.darkMode) R.string.dark_mode else R.string.light_mode),
                             style = MaterialTheme.typography.titleLarge,
                             modifier = Modifier.semantics {
-                                contentDescription = "Current theme: ${if (viewModel.darkMode) "Dark Mode" else "Light Mode"}"
+                                contentDescription = context.getString(R.string.appearance) + ": " + context.getString(if (viewModel.darkMode) R.string.dark_mode else R.string.light_mode)
                             }
                         )
                         Switch(
                             checked = viewModel.darkMode,
                             onCheckedChange = { viewModel.toggleDarkMode() },
                             modifier = Modifier.semantics {
-                                contentDescription = "Toggle ${if (viewModel.darkMode) "light" else "dark"} mode"
+                                contentDescription = context.getString(
+                                    if (viewModel.darkMode) R.string.toggle_to_light_mode else R.string.toggle_to_dark_mode
+                                )
                             }
                         )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Language Card
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics { contentDescription = context.getString(R.string.language) + " settings card" },
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = context.getString(R.string.language),
+                        style = MaterialTheme.typography.titleLarge,
+                        textAlign = TextAlign.Center,
+                        textDecoration = TextDecoration.Underline,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics { contentDescription = context.getString(R.string.language) + " settings underlined title" }
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    LanguageSelectionDialog(viewModel) { languageCode ->
+                        // Handle language change by restarting activity
+                        context.startActivity(Intent(context, MainActivity::class.java).apply {
+                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                        })
+                        (context as? ComponentActivity)?.finish()
                     }
                 }
             }
@@ -695,7 +819,7 @@ class MainActivity : ComponentActivity() {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .semantics { contentDescription = "Fun feature card" },
+                    .semantics { contentDescription = context.getString(R.string.fun_feature) + " card" },
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -708,13 +832,13 @@ class MainActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Fun Feature",
+                        text = context.getString(R.string.fun_feature),
                         style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Center,
                         textDecoration = TextDecoration.Underline,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Fun feature" }
+                            .semantics { contentDescription = context.getString(R.string.fun_feature) }
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(
@@ -726,9 +850,9 @@ class MainActivity : ComponentActivity() {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .semantics { contentDescription = "Launch fun activity" }
+                            .semantics { contentDescription = context.getString(R.string.lets_have_fun) }
                     ) {
-                        Text("Let's Have Fun")
+                        Text(context.getString(R.string.lets_have_fun))
                     }
                 }
             }
@@ -737,10 +861,11 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun ErrorSection(errorMessage: String, color: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.error) {
+        val context = LocalContext.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .semantics { contentDescription = "Error message" },
+                .semantics { contentDescription = context.getString(R.string.app_name) + " Error message" },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -748,22 +873,23 @@ class MainActivity : ComponentActivity() {
                 text = errorMessage,
                 color = color,
                 style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.semantics { contentDescription = "Error: $errorMessage" }
+                modifier = Modifier.semantics { contentDescription = context.getString(R.string.app_name) + " Error: $errorMessage" }
             )
         }
     }
 
     @Composable
     fun LoadingSection() {
+        val context = LocalContext.current
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .semantics { contentDescription = "Loading indicator" },
+                .semantics { contentDescription = context.getString(R.string.loading) + " indicator" },
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.semantics { contentDescription = "Loading weather data" }
+                modifier = Modifier.semantics { contentDescription = context.getString(R.string.loading) + " weather data" }
             )
         }
     }

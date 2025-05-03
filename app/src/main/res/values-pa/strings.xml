@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">ਸਕਾਈਕਾਸਟ</string>
+    <string name="loading">ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ...</string>
+    <string name="na">ਉਪਲਬਧ ਨਹੀਂ</string>
+    <string name="get_weather_data">ਮੌਸਮ ਡੇਟਾ ਪ੍ਰਾਪਤ ਕਰੋ</string>
+    <string name="back">ਵਾਪਸ</string>
+    <string name="refresh">ਤਾਜ਼ਾ ਕਰੋ</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">ਹੋਮ</string>
+    <string name="search">ਖੋਜ</string>
+    <string name="settings">ਸੈਟਿੰਗਜ਼</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">ਸ਼ਹਿਰ ਦਾ ਨਾਮ ਦਰਜ ਕਰੋ (ਉਦਾਹਰਣ, ਲੰਡਨ)</string>
+    <string name="searching">ਖੋਜ ਰਿਹਾ ਹੈ...</string>
+    <string name="search_button">ਖੋਜ</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">ਫੌਂਟ ਸਾਈਜ਼</string>
+    <string name="small">ਛੋਟਾ</string>
+    <string name="medium">ਮੱਧਮ</string>
+    <string name="large">ਵੱਡਾ</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">ਦਿੱਖ</string>
+    <string name="dark_mode">ਡਾਰਕ ਮੋਡ</string>
+    <string name="light_mode">ਲਾਈਟ ਮੋਡ</string>
+    <string name="toggle_to_dark_mode">ਡਾਰਕ ਮੋਡ ਵਿੱਚ ਸਵਿਚ ਕਰੋ</string>
+    <string name="toggle_to_light_mode">ਲਾਈਟ ਮੋਡ ਵਿੱਚ ਸਵਿਚ ਕਰੋ</string>
+    <string name="language">ਭਾਸ਼ਾ</string>
+    <string name="english">ਅੰਗਰੇਜ਼ੀ</string>
+    <string name="hindi">ਹਿੰਦੀ</string>
+    <string name="punjabi">ਪੰਜਾਬੀ</string>
+    <string name="language_selection">ਭਾਸ਼ਾ ਚੋਣ</string>
+    <string name="language_label">ਭਾਸ਼ਾ</string>
+    <string name="change_language">ਭਾਸ਼ਾ ਬਦਲੋ</string>
+    <string name="cancel">ਰੱਦ ਕਰੋ</string>
+    <string name="set_language">ਭਾਸ਼ਾ ਸੈਟ ਕਰੋ</string>
+    <string name="language_selection_dialog">ਭਾਸ਼ਾ ਚੋਣ ਡਾਇਲਾਗ</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">ਮਜ਼ੇਦਾਰ ਫੀਚਰ</string>
+    <string name="lets_have_fun">ਆਓ ਮਜ਼ੇ ਕਰੀਏ</string>
+    <string name="progress_bar">ਪ੍ਰੋਗਰੈਸ ਬਾਰ %d%% ਤੇ</string>
+    <string name="progress_percentage">ਪ੍ਰਗਤੀ ਪ੍ਰਤੀਸ਼ਤ: %d%%</string>
+    <string name="status_message">ਸਥਿਤੀ ਸੁਨੇਹਾ: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">ਸਥਾਨ ਸੇਵਾਵਾਂ ਸਮਰੱਥ ਨਹੀਂ ਹਨ। ਕਿਰਪਾ ਕਰਕੇ ਮੌਸਮ ਡੇਟਾ ਵੇਖਣ ਲਈ ਸਥਾਨ ਸਮਰੱਥ ਕਰੋ।</string>
+    <string name="permission_granted">ਇਜਾਜ਼ਤ ਦਿੱਤੀ ਗਈ</string>
+    <string name="permission_denied">ਇਜਾਜ਼ਤ ਅਸਵੀਕਾਰ ਕੀਤੀ ਗਈ</string>
+    <string name="permissions_required">ਮੌਸਮ ਡੇਟਾ ਪ੍ਰਾਪਤ ਕਰਨ ਲਈ ਸਾਰੀਆਂ ਲੋੜੀਂਦੀਆਂ ਇਜਾਜ਼ਤਾਂ ਦਿਓ</string>
+    <string name="request_permissions">ਇਜਾਜ਼ਤਾਂ ਦੀ ਮੰਗ ਕਰੋ</string>
+    <string name="retrying_location">ਸਥਾਨ ਪ੍ਰਾਪਤ ਕਰਨ ਦੀ ਮੁੜ ਕੋਸ਼ਿਸ਼...</string>
+    <string name="location_not_found">ਸਥਾਨ ਨਹੀਂ ਮਿਲਿਆ</string>
+    <string name="unknown_error">ਅਗਿਆਤ ਗਲਤੀ ਵਾਪਰੀ</string>
+    <string name="fetching_location">ਸਥਾਨ ਪ੍ਰਾਪਤ ਕਰ ਰਿਹਾ ਹੈ</string>
+    <string name="getting_results">ਨਤੀਜੇ ਪ੍ਰਾਪਤ ਕਰ ਰਿਹਾ ਹੈ</string>
+    <string name="processing_data">ਡੇਟਾ ਪ੍ਰੋਸੈਸ ਕਰ ਰਿਹਾ ਹੈ</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">ਬਾਹਰ ਜਾਓ, ਥੋੜਾ ਆਰਾਮ ਕਰੋ, ਅਤੇ ਖੁਦ ਵੇਖੋ</string>
+    <string name="weather_forecast_description">ਅਗਲੇ ਕੁਝ ਦਿਨਾਂ ਲਈ ਮੌਸਮ ਪੂਰਵ ਅਨੁਮਾਨ</string>
+    <string name="forecast_list_description">ਪੂਰਵ ਅਨੁਮਾਨ ਟਾਈਲਾਂ ਦੀ ਸੂਚੀ</string>
+    <string name="temperature">ਤਾਪਮਾਨ: %1$s</string>
+    <string name="weather_icon_description">ਪੂਰਵ ਅਨੁਮਾਨ ਲਈ ਮੌਸਮ ਆਈਕਨ</string>
+    <string name="time">ਸਮਾਂ: %1$s</string>
+    <string name="feels_like">ਇੰਜ ਲੱਗਦਾ ਹੈ: %1$s</string>
+    <string name="precipitation_probability">ਬਾਰਸ਼ ਦੀ ਸੰਭਾਵਨਾ: %1$s</string>
+    <string name="wind_speed">ਹਵਾ ਦੀ ਗਤੀ: %1$s</string>
+    <string name="cloudiness">ਬੱਦਲ: %1$s</string>
+    <string name="current_weather_description">%1$s ਲਈ ਮੌਜੂਦਾ ਮੌਸਮ ਜਾਣਕਾਰੀ</string>
+    <string name="sunrise_sunset">ਸੂਰਜ ਚੜ੍ਹਨਾ: %1$s | ਸੂਰਜ ਡੁੱਬਣਾ: %2$s</string>
+    <string name="weather_condition_icon">ਮੌਸਮ ਸਥਿਤੀ ਆਈਕਨ</string>
+    <string name="additional_temp_details">ਵਾਧੂ ਤਾਪਮਾਨ ਵੇਰਵੇ</string>
+    <string name="weather_stats">ਮੌਸਮ ਅੰਕੜੇ</string>
+    <string name="wind">ਹਵਾ</string>
+    <string name="direction">ਦਿਸ਼ਾ</string>
+    <string name="clouds">ਬੱਦਲ</string>
+    <string name="snow">ਬਰਫ</string>
+    <string name="visibility">ਦਿੱਖ</string>
+    <string name="pressure">ਦਬਾਅ</string>
+    <string name="humidity">ਨਮੀ</string>
+</resources>

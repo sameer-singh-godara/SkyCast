@@ -8,10 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.skycast.R
 import com.example.skycast.model.MyLatLng
 import com.example.skycast.model.forecast.ForecastResult
 import com.example.skycast.model.weather.WeatherResult
 import com.example.skycast.network.RetrofitClient
+import com.example.skycast.utils.LanguageUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -19,116 +21,119 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 enum class STATE {
+    IDLE,
     LOADING,
     SUCCESS,
     FAILED,
-    IDLE,
-    NOTHING // New state for manual refresh
+    NOTHING
 }
 
 class MainViewModel : ViewModel() {
-    // States for LocationScreen
+    private companion object {
+        const val TAG = "MainViewModel"
+        const val DEFAULT_LANGUAGE = "en"
+    }
+
     var state by mutableStateOf(STATE.IDLE)
-    var weatherResponse: WeatherResult by mutableStateOf(WeatherResult())
-    var forecastResponse: ForecastResult by mutableStateOf(ForecastResult())
-    var errorMessage: String by mutableStateOf("")
-    var lastFetchedLocation by mutableStateOf(MyLatLng(0.0, 0.0))
+    var weatherResponse by mutableStateOf(WeatherResult())
         private set
-    var hasInitialFetchCompleted by mutableStateOf(false)
+    var forecastResponse by mutableStateOf(ForecastResult())
+        private set
+    var errorMessage by mutableStateOf("")
+        private set
+    var lastFetchedLocation by mutableStateOf(MyLatLng(0.0, 0.0))
         private set
     var currentLocation by mutableStateOf(MyLatLng(0.0, 0.0))
         private set
+    var hasInitialFetchCompleted by mutableStateOf(false)
+        private set
 
-    // States for SearchScreen
     var searchState by mutableStateOf(STATE.IDLE)
-    var searchWeatherResponse: WeatherResult by mutableStateOf(WeatherResult())
-    var searchForecastResponse: ForecastResult by mutableStateOf(ForecastResult())
-    var searchErrorMessage: String by mutableStateOf("")
+        private set
+    var searchWeatherResponse by mutableStateOf(WeatherResult())
+        private set
+    var searchForecastResponse by mutableStateOf(ForecastResult())
+        private set
+    var searchErrorMessage by mutableStateOf("")
+        private set
 
     var darkMode by mutableStateOf(false)
         private set
-
     var fontSizeScale by mutableStateOf(1.0f)
+        private set
+    var language by mutableStateOf(DEFAULT_LANGUAGE)
         private set
 
     fun updateCurrentLocation(location: MyLatLng) {
+        Log.d(TAG, "Updating current location: $location")
         currentLocation = location
     }
 
     fun updateLastFetchedLocation(location: MyLatLng) {
+        Log.d(TAG, "Updating last fetched location: $location")
         lastFetchedLocation = location
     }
 
     fun setInitialFetchCompleted(completed: Boolean) {
+        Log.d(TAG, "Setting initial fetch completed: $completed")
         hasInitialFetchCompleted = completed
     }
 
     fun toggleDarkMode() {
         darkMode = !darkMode
+        Log.d(TAG, "Dark mode toggled to: $darkMode")
     }
 
     fun increaseFontSize() {
-        fontSizeScale = (fontSizeScale + 0.1f).coerceAtMost(1.5f) // Max 1.5f
-        Log.d("FontSize", "Font size increased to $fontSizeScale")
+        fontSizeScale = (fontSizeScale + 0.1f).coerceAtMost(1.5f)
+        Log.d(TAG, "Font size increased to: $fontSizeScale")
     }
 
     fun decreaseFontSize() {
-        fontSizeScale = (fontSizeScale - 0.1f).coerceAtLeast(0.5f) // Min 0.5f
-        Log.d("FontSize", "Font size decreased to $fontSizeScale")
+        fontSizeScale = (fontSizeScale - 0.1f).coerceAtLeast(0.5f)
+        Log.d(TAG, "Font size decreased to: $fontSizeScale")
+    }
+
+    fun setLanguage(context: Context, languageCode: String) {
+        language = languageCode
+        LanguageUtils.setLocale(context, languageCode)
+        Log.d(TAG, "Language set to: $languageCode")
     }
 
     fun getWeatherByLocation(latLng: MyLatLng) {
-        Log.d("Weather App", "API Called by Coordinates (Weather)!!!")
+        Log.d(TAG, "Fetching weather for coordinates: $latLng")
         viewModelScope.launch {
+            if (hasInitialFetchCompleted && lastFetchedLocation == latLng && state == STATE.SUCCESS) {
+                Log.d(TAG, "Skipping weather fetch: Data already available for $latLng")
+                return@launch
+            }
+
             state = if (state == STATE.NOTHING) STATE.NOTHING else STATE.LOADING
-            val apiService = RetrofitClient.getInstance()
             try {
-                val apiResponse = apiService.getWeather(latLng.lat, latLng.lng)
-                weatherResponse = apiResponse
-                state = STATE.SUCCESS
+                coroutineScope {
+                    val apiService = RetrofitClient.getInstance()
+                    val weatherDeferred = async { apiService.getWeather(latLng.lat, latLng.lng) }
+                    val forecastDeferred = async { apiService.getForecast(latLng.lat, latLng.lng) }
+                    weatherResponse = weatherDeferred.await()
+                    forecastResponse = forecastDeferred.await()
+                    state = STATE.SUCCESS
+                    Log.d(TAG, "Weather and forecast fetch successful: ${weatherResponse.name}")
+                }
             } catch (e: Exception) {
-                errorMessage = e.message ?: "Unknown error"
+                errorMessage = e.message ?: "Unknown error occurred"
                 state = STATE.FAILED
+                Log.e(TAG, "Weather fetch failed: $errorMessage")
             }
         }
     }
 
     fun getForecastByLocation(latLng: MyLatLng) {
-        Log.d("Weather App", "API Called by Coordinates (Forecast)!!!")
-        viewModelScope.launch {
-            state = if (state == STATE.NOTHING) STATE.NOTHING else STATE.LOADING
-            val apiService = RetrofitClient.getInstance()
-            try {
-                val apiResponse = apiService.getForecast(latLng.lat, latLng.lng)
-                forecastResponse = apiResponse
-                state = STATE.SUCCESS
-            } catch (e: Exception) {
-                errorMessage = e.message ?: "Unknown error"
-                state = STATE.FAILED
-            }
-        }
-    }
-
-    private suspend fun getCoordinatesFromLocationName(context: Context, locationName: String): MyLatLng? {
-        return withContext(Dispatchers.IO) {
-            try {
-                val geocoder = Geocoder(context)
-                val addresses = geocoder.getFromLocationName(locationName, 1)
-                if (addresses?.isNotEmpty() == true) {
-                    val address = addresses[0]
-                    MyLatLng(address.latitude, address.longitude)
-                } else {
-                    null
-                }
-            } catch (e: Exception) {
-                Log.e("Geocoder", "Error: ${e.message}")
-                null
-            }
-        }
+        Log.d(TAG, "getForecastByLocation called, delegating to getWeatherByLocation for: $latLng")
+        getWeatherByLocation(latLng)
     }
 
     fun getWeatherByLocationName(context: Context, locationName: String) {
-        Log.d("Weather App", "API Called by Name!!!")
+        Log.d(TAG, "Fetching weather for location name: $locationName")
         viewModelScope.launch {
             searchState = STATE.LOADING
             searchErrorMessage = ""
@@ -142,14 +147,38 @@ class MainViewModel : ViewModel() {
                         searchWeatherResponse = weatherDeferred.await()
                         searchForecastResponse = forecastDeferred.await()
                         searchState = STATE.SUCCESS
+                        Log.d(TAG, "Weather and forecast fetch successful for $locationName")
                     }
                 } else {
-                    searchErrorMessage = "Location not found"
+                    searchErrorMessage = context.getString(R.string.location_not_found)
                     searchState = STATE.FAILED
+                    Log.e(TAG, "Location not found: $locationName")
                 }
             } catch (e: Exception) {
-                searchErrorMessage = e.message ?: "Unknown error occurred"
+                searchErrorMessage = e.message ?: context.getString(R.string.unknown_error)
                 searchState = STATE.FAILED
+                Log.e(TAG, "Weather fetch by name failed: $searchErrorMessage")
+            }
+        }
+    }
+
+    private suspend fun getCoordinatesFromLocationName(context: Context, locationName: String): MyLatLng? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val geocoder = Geocoder(context)
+                val addresses = geocoder.getFromLocationName(locationName, 1)
+                if (!addresses.isNullOrEmpty()) {
+                    val address = addresses[0]
+                    MyLatLng(address.latitude, address.longitude).also {
+                        Log.d(TAG, "Geocoded $locationName to coordinates: $it")
+                    }
+                } else {
+                    Log.w(TAG, "No coordinates found for location: $locationName")
+                    null
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Geocoding error for $locationName: ${e.message}")
+                null
             }
         }
     }

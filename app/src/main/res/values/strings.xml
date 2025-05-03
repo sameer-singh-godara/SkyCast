@@ -1,3 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- General App Strings -->
     <string name="app_name">SkyCast</string>
+    <string name="loading">Loading...</string>
+    <string name="na">N/A</string>
+    <string name="get_weather_data">Get Weather Data</string>
+    <string name="back">Back</string>
+    <string name="refresh">Refresh</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="settings">Settings</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">Enter city name (e.g., London)</string>
+    <string name="searching">Searching...</string>
+    <string name="search_button">Search</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">Font Size</string>
+    <string name="small">Small</string>
+    <string name="medium">Medium</string>
+    <string name="large">Large</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">Appearance</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="toggle_to_dark_mode">Toggle to Dark Mode</string>
+    <string name="toggle_to_light_mode">Toggle to Light Mode</string>
+    <string name="language">Language</string>
+    <string name="english">English</string>
+    <string name="hindi">Hindi</string>
+    <string name="punjabi">Punjabi</string>
+    <string name="language_selection">Language selection</string>
+    <string name="language_label">Language</string>
+    <string name="change_language">Change Language</string>
+    <string name="cancel">Cancel</string>
+    <string name="set_language">Set Language</string>
+    <string name="language_selection_dialog">Language selection dialog</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">Fun Feature</string>
+    <string name="lets_have_fun">Let\'s Have Fun</string>
+    <string name="progress_bar">Progress bar at %d%%</string>
+    <string name="progress_percentage">Progress percentage: %d%%</string>
+    <string name="status_message">Status message: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">Location services are not enabled. Please enable location to view weather data.</string>
+    <string name="permission_granted">Permission Granted</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="permissions_required">Please grant all required permissions to fetch weather data</string>
+    <string name="request_permissions">Request Permissions</string>
+    <string name="retrying_location">Retrying to fetch location...</string>
+    <string name="location_not_found">Location not found</string>
+    <string name="unknown_error">Unknown error occurred</string>
+    <string name="fetching_location">Fetching location</string>
+    <string name="getting_results">Getting results</string>
+    <string name="processing_data">Processing data</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">Go outside, have some rest, and see for yourself</string>
+    <string name="weather_forecast_description">Weather forecast for the next few days</string>
+    <string name="forecast_list_description">List of forecast tiles</string>
+    <string name="temperature">Temperature: %1$s</string>
+    <string name="weather_icon_description">Weather icon for forecast</string>
+    <string name="time">Time: %1$s</string>
+    <string name="feels_like">Feels like: %1$s</string>
+    <string name="precipitation_probability">Precipitation probability: %1$s</string>
+    <string name="wind_speed">Wind speed: %1$s</string>
+    <string name="cloudiness">Cloudiness: %1$s</string>
+    <string name="current_weather_description">Current weather information for %1$s</string>
+    <string name="sunrise_sunset">Sunrise: %1$s | Sunset: %2$s</string>
+    <string name="weather_condition_icon">Weather condition icon</string>
+    <string name="additional_temp_details">Additional temperature details</string>
+    <string name="weather_stats">Weather statistics</string>
+    <string name="wind">Wind</string>
+    <string name="direction">Direction</string>
+    <string name="clouds">Clouds</string>
+    <string name="snow">Snow</string>
+    <string name="visibility">Visibility</string>
+    <string name="pressure">Pressure</string>
+    <string name="humidity">Humidity</string>
 </resources>
