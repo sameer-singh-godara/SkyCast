@@ -2,11 +2,14 @@ package com.example.skycast.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
@@ -47,9 +50,15 @@ fun ForecastSection(
                     modifier = Modifier
                         .fillMaxWidth()
                         .semantics { contentDescription = context.getString(R.string.forecast_list_description) },
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp) // Only vertical padding
                 ) {
-                    items(listForecast) { item ->
+                    items(listForecast.withIndex().toList()) { indexedItem ->
+                        val index = indexedItem.index
+                        val item = indexedItem.value
+                        val isFirst = index == 0
+                        val isLast = index == listForecast.size - 1
+
                         ForecastTile(
                             temp = item.main?.temp?.let { "${it}°C" } ?: context.getString(R.string.na),
                             image = item.weather?.firstOrNull()?.icon?.let {
@@ -61,7 +70,9 @@ fun ForecastSection(
                             feelsLike = item.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.na),
                             pop = item.pop?.let { "${(it * 100).toInt()}%" } ?: context.getString(R.string.na),
                             windSpeed = item.wind?.speed?.let { "${it.toInt()} m/s" } ?: context.getString(R.string.na),
-                            cloudiness = item.clouds?.all?.let { "$it%" } ?: context.getString(R.string.na)
+                            cloudiness = item.clouds?.all?.let { "$it%" } ?: context.getString(R.string.na),
+                            isFirst = isFirst,
+                            isLast = isLast
                         )
                     }
                 }
@@ -79,13 +90,21 @@ fun ForecastTile(
     pop: String,
     windSpeed: String,
     cloudiness: String,
+    isFirst: Boolean = false,
+    isLast: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     Card(
         modifier = modifier
-            .padding(10.dp)
-            .width(130.dp)
+            .padding(
+                start = if (isFirst) 0.dp else 5.dp,
+                end = if (isLast) 0.dp else 5.dp,
+                top = 5.dp,
+                bottom = 5.dp
+            )
+            .wrapContentWidth()
+            .wrapContentHeight()
             .semantics {
                 contentDescription = context.getString(R.string.app_name) + " Forecast for $time: $temp, " + context.getString(R.string.feels_like, feelsLike) + ", " + context.getString(R.string.precipitation_probability, pop) + ", " + context.getString(R.string.wind_speed, windSpeed) + ", " + context.getString(R.string.cloudiness, cloudiness)
             },
@@ -97,8 +116,8 @@ fun ForecastTile(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(8.dp),
-            verticalArrangement = Arrangement.Center,
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -123,7 +142,9 @@ fun ForecastTile(
             Text(
                 text = time,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha
+
+                = 0.8f),
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .semantics { contentDescription = context.getString(R.string.time, time) },
