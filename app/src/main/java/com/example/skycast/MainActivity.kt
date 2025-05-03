@@ -572,7 +572,7 @@ class MainActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(top = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -617,6 +617,8 @@ class MainActivity : ComponentActivity() {
                     Text(if (isLoading) context.getString(R.string.searching) else context.getString(R.string.search_button))
                 }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
                 when (viewModel.searchState) {
                     STATE.LOADING -> if (isLoading) LoadingSection()
                     STATE.FAILED -> ErrorSection(
@@ -624,22 +626,14 @@ class MainActivity : ComponentActivity() {
                         color = MaterialTheme.colorScheme.error
                     )
                     STATE.SUCCESS -> if (showResults) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .semantics { contentDescription = context.getString(R.string.search) + " results" },
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
-                                WeatherSection(
-                                    weatherResponse = viewModel.searchWeatherResponse,
-                                    locationName = viewModel.searchLocationName
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-                            if (viewModel.searchForecastResponse.list?.isNotEmpty() == true) {
-                                ForecastSection(viewModel.searchForecastResponse)
-                            }
+                        if (viewModel.searchWeatherResponse.name?.isNotEmpty() == true) {
+                            WeatherSection(
+                                weatherResponse = viewModel.searchWeatherResponse,
+                                locationName = viewModel.searchLocationName
+                            )
+                        }
+                        if (viewModel.searchForecastResponse.list?.isNotEmpty() == true) {
+                            ForecastSection(viewModel.searchForecastResponse)
                         }
                     }
                     else -> {}
