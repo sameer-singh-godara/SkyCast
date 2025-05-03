@@ -108,11 +108,6 @@ class MainViewModel : ViewModel() {
     fun getWeatherByLocation(latLng: MyLatLng, context: Context? = null) {
         Log.d(TAG, "Fetching weather for coordinates: $latLng")
         viewModelScope.launch {
-            if (hasInitialFetchCompleted && lastFetchedLocation == latLng && state == STATE.SUCCESS) {
-                Log.d(TAG, "Skipping weather fetch: Data already available for $latLng")
-                return@launch
-            }
-
             state = if (state == STATE.NOTHING) STATE.NOTHING else STATE.LOADING
             try {
                 coroutineScope {
