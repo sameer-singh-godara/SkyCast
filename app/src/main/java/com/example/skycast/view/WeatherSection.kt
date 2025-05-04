@@ -62,8 +62,6 @@ fun WeatherSection(
     // Temperature and other info
     val temperature = weatherResponse.main?.temp?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.loading)
     val feelsLike = weatherResponse.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.na)
-    val tempMin = weatherResponse.main?.tempMin?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.na)
-    val tempMax = weatherResponse.main?.tempMax?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.na)
     val pressure = weatherResponse.main?.pressure?.let { "${it.toInt()} hPa" } ?: context.getString(R.string.na)
     val humidity = weatherResponse.main?.humidity?.let { "$it%" } ?: context.getString(R.string.na)
     val windSpeed = weatherResponse.wind?.speed?.let { "${it.toInt()} m/s" } ?: context.getString(R.string.loading)
@@ -102,28 +100,15 @@ fun WeatherSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .semantics { contentDescription = context.getString(R.string.additional_temp_details) },
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            WeatherStatItem(icon = FaIcons.ThermometerHalf, value = feelsLike, label = context.getString(R.string.feels_like))
-            WeatherStatItem(icon = FaIcons.ThermometerEmpty, value = tempMin, label = context.getString(R.string.temp_min))
-            WeatherStatItem(icon = FaIcons.ThermometerFull, value = tempMax, label = context.getString(R.string.temp_max))
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
         WeatherStatsRow(
+            feelsLike = feelsLike,
             windSpeed = windSpeed,
             windDirection = windDirection,
             cloudiness = cloudiness,
             snowVolume = snowVolume,
+            humidity = humidity,
             visibility = visibility,
-            pressure = pressure,
-            humidity = humidity
+            pressure = pressure
         )
     }
 }
@@ -184,43 +169,83 @@ fun WeatherTitleSection(
 
 @Composable
 fun WeatherStatsRow(
+    feelsLike: String,
     windSpeed: String,
     windDirection: String,
     cloudiness: String,
     snowVolume: String,
+    humidity: String,
     visibility: String,
     pressure: String,
-    humidity: String,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp)
-            .semantics { contentDescription = context.getString(R.string.weather_stats) },
+            .padding(horizontal = 24.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        // First Table: 2x3 grid
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .semantics { contentDescription = context.getString(R.string.weather_stats) + " First row" },
+                .semantics { contentDescription = context.getString(R.string.weather_stats) + " Table 1" },
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            WeatherStatItem(icon = FaIcons.Wind, value = windSpeed, label = context.getString(R.string.wind))
-            WeatherStatItem(icon = FaIcons.Compass, value = windDirection, label = context.getString(R.string.direction))
-            WeatherStatItem(icon = FaIcons.Cloud, value = cloudiness, label = context.getString(R.string.clouds))
-            WeatherStatItem(icon = FaIcons.Snowflake, value = snowVolume, label = context.getString(R.string.snow))
+            // First column: feelsLike, clouds
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WeatherStatItem(icon = FaIcons.ThermometerHalf, value = feelsLike, label = context.getString(R.string.feels_like))
+                WeatherStatItem(icon = FaIcons.Cloud, value = cloudiness, label = context.getString(R.string.clouds))
+            }
+
+            // Second column: windSpeed, snowVolume
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WeatherStatItem(icon = FaIcons.Wind, value = windSpeed, label = context.getString(R.string.wind))
+                WeatherStatItem(icon = FaIcons.Snowflake, value = snowVolume, label = context.getString(R.string.snow))
+            }
+
+            // Third column: windDirection, humidity
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WeatherStatItem(icon = FaIcons.Compass, value = windDirection, label = context.getString(R.string.direction))
+                WeatherStatItem(icon = FaIcons.Tint, value = humidity, label = context.getString(R.string.humidity))
+            }
         }
+
+        // Second Table: 1x2 grid
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .semantics { contentDescription = context.getString(R.string.weather_stats) + " Second row" },
-            horizontalArrangement = Arrangement.SpaceEvenly
+                .semantics { contentDescription = context.getString(R.string.weather_stats) + " Table 2" },
+            horizontalArrangement = Arrangement.SpaceAround
         ) {
-            WeatherStatItem(icon = FaIcons.Eye, value = visibility, label = context.getString(R.string.visibility))
-            WeatherStatItem(icon = FaIcons.TachometerAlt, value = pressure, label = context.getString(R.string.pressure))
-            WeatherStatItem(icon = FaIcons.Tint, value = humidity, label = context.getString(R.string.humidity))
+            // First column: visibility (centered between first and second columns of first table)
+            Column(
+                modifier = Modifier.weight(1.5f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WeatherStatItem(icon = FaIcons.Eye, value = visibility, label = context.getString(R.string.visibility))
+            }
+
+            // Second column: pressure (centered between second and third columns of first table)
+            Column(
+                modifier = Modifier.weight(1.5f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WeatherStatItem(icon = FaIcons.TachometerAlt, value = pressure, label = context.getString(R.string.pressure))
+            }
         }
     }
 }

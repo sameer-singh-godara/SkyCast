@@ -76,8 +76,6 @@
     <string name="weather_icon_description">পূর্বাভাসের জন্য আবহাওয়ার আইকন</string>
     <string name="time">সময়: %1$s</string>
     <string name="feels_like">মনে হয়</string>
-    <string name="temp_min">ন্যূনতম তাপমাত্রা</string>
-    <string name="temp_max">সর্বোচ্চ তাপমাত্রা</string>
     <string name="precipitation_probability">বৃষ্টিপাতের সম্ভাবনা: %1$s</string>
     <string name="wind_speed">বাতাসের গতি: %1$s</string>
     <string name="cloudiness">মেঘলা: %1$s</string>

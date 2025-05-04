@@ -76,8 +76,6 @@
     <string name="weather_icon_description">అంచనా కోసం వాతావరణ ఐకాన్</string>
     <string name="time">సమయం: %1$s</string>
     <string name="feels_like">అనిపిస్తుంది</string>
-    <string name="temp_min">కనిష్ట ఉష్ణోగ్రత</string>
-    <string name="temp_max">గరిష్ట ఉష్ణోగ్రత</string>
     <string name="precipitation_probability">వర్షం సంభావ్యత: %1$s</string>
     <string name="wind_speed">గాలి వేగం: %1$s</string>
     <string name="cloudiness">మేఘావృతం: %1$s</string>

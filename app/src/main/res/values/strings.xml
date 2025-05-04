@@ -76,8 +76,6 @@
     <string name="weather_icon_description">Weather icon for forecast</string>
     <string name="time">Time: %1$s</string>
     <string name="feels_like">Feels like</string>
-    <string name="temp_min">Min temp</string>
-    <string name="temp_max">Max temp</string>
     <string name="precipitation_probability">Precipitation probability: %1$s</string>
     <string name="wind_speed">Wind speed: %1$s</string>
     <string name="cloudiness">Cloudiness: %1$s</string>

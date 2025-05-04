@@ -76,8 +76,6 @@
     <string name="weather_icon_description">अंदाजासाठी हवामान चिन्ह</string>
     <string name="time">वेळ: %1$s</string>
     <string name="feels_like">असे वाटते</string>
-    <string name="temp_min">किमान तापमान</string>
-    <string name="temp_max">कमाल तापमान</string>
     <string name="precipitation_probability">पर्जन्याची शक्यता: %1$s</string>
     <string name="wind_speed">वाऱ्याचा वेग: %1$s</string>
     <string name="cloudiness">ढग: %1$s</string>

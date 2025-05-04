@@ -76,8 +76,6 @@
     <string name="weather_icon_description">पूर्वानुमान के लिए मौसम आइकन</string>
     <string name="time">समय: %1$s</string>
     <string name="feels_like">ऐसा लगता है</string>
-    <string name="temp_min">न्यूनतम तापमान</string>
-    <string name="temp_max">अधिकतम तापमान</string>
     <string name="precipitation_probability">वर्षा की संभावना: %1$s</string>
     <string name="wind_speed">हवा की गति: %1$s</string>
     <string name="cloudiness">बादल: %1$s</string>

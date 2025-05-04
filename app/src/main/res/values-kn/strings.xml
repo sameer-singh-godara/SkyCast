@@ -76,8 +76,6 @@
     <string name="weather_icon_description">ಮುನ್ಸೂಚನೆಗಾಗಿ ಹವಾಮಾನ ಐಕಾನ್</string>
     <string name="time">ಸಮಯ: %1$s</string>
     <string name="feels_like">ಅನಿಸುತ್ತದೆ</string>
-    <string name="temp_min">ಕನಿಷ್ಠ ತಾಪಮಾನ</string>
-    <string name="temp_max">ಗರಿಷ್ಠ ತಾಪಮಾನ</string>
     <string name="precipitation_probability">ಮಳೆಯ ಸಂಭವನೀಯತೆ: %1$s</string>
     <string name="wind_speed">ಗಾಳಿಯ ವೇಗ: %1$s</string>
     <string name="cloudiness">ಮೋಡ ಕವಿದಿರುವಿಕೆ: %1$s</string>

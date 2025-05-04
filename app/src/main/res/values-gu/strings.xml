@@ -76,8 +76,6 @@
     <string name="weather_icon_description">આગાહી માટે હવામાન આઇકન</string>
     <string name="time">સમય: %1$s</string>
     <string name="feels_like">એવું લાગે છે</string>
-    <string name="temp_min">ન્યૂનતમ તાપમાન</string>
-    <string name="temp_max">મહત્તમ તાપમાન</string>
     <string name="precipitation_probability">વરસાદની સંભાવના: %1$s</string>
     <string name="wind_speed">પવનની ગતિ: %1$s</string>
     <string name="cloudiness">વાદળો: %1$s</string>

@@ -76,8 +76,6 @@
     <string name="weather_icon_description">പ്രവചനത്തിനുള്ള കാലാവസ്ഥാ ഐക്കൺ</string>
     <string name="time">സമയം: %1$s</string>
     <string name="feels_like">തോന്നുന്നത്</string>
-    <string name="temp_min">കുറഞ്ഞ താപനില</string>
-    <string name="temp_max">ഉയർന്ന താപനില</string>
     <string name="precipitation_probability">മഴയുടെ സാധ്യത: %1$s</string>
     <string name="wind_speed">കാറ്റിന്റെ വേഗത: %1$s</string>
     <string name="cloudiness">മേഘാവൃതം: %1$s</string>

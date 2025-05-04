@@ -76,8 +76,6 @@
     <string name="weather_icon_description">முன்னறிவிப்புக்கான வானிலை ஐகான்</string>
     <string name="time">நேரம்: %1$s</string>
     <string name="feels_like">உணரப்படுவது</string>
-    <string name="temp_min">குறைந்தபட்ச வெப்பநிலை</string>
-    <string name="temp_max">அதிகபட்ச வெப்பநிலை</string>
     <string name="precipitation_probability">மழை வாய்ப்பு: %1$s</string>
     <string name="wind_speed">காற்று வேகம்: %1$s</string>
     <string name="cloudiness">மேகமூட்டம்: %1$s</string>

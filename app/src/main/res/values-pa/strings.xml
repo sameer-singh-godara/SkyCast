@@ -76,8 +76,6 @@
     <string name="weather_icon_description">ਪੂਰਵ ਅਨੁਮਾਨ ਲਈ ਮੌਸਮ ਆਈਕਨ</string>
     <string name="time">ਸਮਾਂ: %1$s</string>
     <string name="feels_like">ਇੰਜ ਲੱਗਦਾ ਹੈ</string>
-    <string name="temp_min">ਘੱਟੋ-ਘੱਟ ਤਾਪਮਾਨ</string>
-    <string name="temp_max">ਵੱਧ ਤੋਂ ਵੱਧ ਤਾਪਮਾਨ</string>
     <string name="precipitation_probability">ਬਾਰਸ਼ ਦੀ ਸੰਭਾਵਨਾ: %1$s</string>
     <string name="wind_speed">ਹਵਾ ਦੀ ਗਤੀ: %1$s</string>
     <string name="cloudiness">ਬੱਦਲ: %1$s</string>
