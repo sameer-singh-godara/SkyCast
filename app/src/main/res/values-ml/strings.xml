@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">സ്കൈകാസ്റ്റ്</string>
+    <string name="loading">ലോഡ് ചെയ്യുന്നു...</string>
+    <string name="na">ലഭ്യമല്ല</string>
+    <string name="get_weather_data">കാലാവസ്ഥാ ഡാറ്റ ലഭ്യമാക്കുക</string>
+    <string name="back">പിന്നോട്ട്</string>
+    <string name="refresh">പുതുക്കുക</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">ഹോം</string>
+    <string name="search">തിരയുക</string>
+    <string name="settings">ക്രമീകരണങ്ങൾ</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">നഗരത്തിന്റെ പേര് നൽകുക (ഉദാ., ലണ്ടൻ)</string>
+    <string name="searching">തിരയുന്നു...</string>
+    <string name="search_button">തിരയുക</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">ഫോണ്ട് വലുപ്പം</string>
+    <string name="small">ചെറുത്</string>
+    <string name="medium">ഇടത്തരം</string>
+    <string name="large">വലുത്</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">രൂപം</string>
+    <string name="dark_mode">ഡാർക്ക് മോഡ്</string>
+    <string name="light_mode">ലൈറ്റ് മോഡ്</string>
+    <string name="toggle_to_dark_mode">ഡാർക്ക് മോഡിലേക്ക് മാറുക</string>
+    <string name="toggle_to_light_mode">ലൈറ്റ് മോഡിലേക്ക് മാറുക</string>
+    <string name="language">ഭാഷ</string>
+    <string name="english">English</string>
+    <string name="hindi">हिन्दी</string>
+    <string name="punjabi">ਪੰਜਾਬੀ</string>
+    <string name="marathi">मराठी</string>
+    <string name="gujarati">ગુજરાતી</string>
+    <string name="bengali">বাংলা</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="telugu">తెలుగు</string>
+    <string name="malayalam">മലയാളം</string>
+    <string name="kannada">ಕನ್ನಡ</string>
+    <string name="urdu">اردو</string>
+    <string name="language_selection">ഭാഷാ തിരഞ്ഞെടുപ്പ്</string>
+    <string name="language_label">ഭാഷ</string>
+    <string name="change_language">ഭാഷ മാറ്റുക</string>
+    <string name="cancel">റദ്ദാക്കുക</string>
+    <string name="set_language">ഭാഷ സെറ്റ് ചെയ്യുക</string>
+    <string name="language_selection_dialog">ഭാഷാ തിരഞ്ഞെടുപ്പ് ഡയലോഗ്</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">രസകരമായ ഫീച്ചർ</string>
+    <string name="lets_have_fun">വരൂ, നമുക്ക് ആസ്വദിക്കാം</string>
+    <string name="progress_bar">പുരോഗതി ബാർ %d%% ൽ</string>
+    <string name="progress_percentage">പുരോഗതി ശതമാനം: %d%%</string>
+    <string name="status_message">നിലവിലെ സന്ദേശം: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">ലൊക്കേഷൻ സേവനങ്ങൾ പ്രവർത്തനക്ഷമമല്ല. കാലാവസ്ഥാ ഡാറ്റ കാണാൻ ലൊക്കേഷൻ പ്രവർത്തനക്ഷമമാക്കുക.</string>
+    <string name="permission_granted">അനുമതി നൽകി</string>
+    <string name="permission_denied">അനുമതി നിരസിച്ചു</string>
+    <string name="permissions_required">കാലാവസ്ഥാ ഡാറ്റ ലഭ്യമാക്കാൻ എല്ലാ ആവശ്യമായ അനുമതികളും നൽകുക</string>
+    <string name="request_permissions">അനുമതികൾ അഭ്യർത്ഥിക്കുക</string>
+    <string name="retrying_location">ലൊക്കേഷൻ ലഭ്യമാക്കാൻ വീണ്ടും ശ്രമിക്കുന്നു...</string>
+    <string name="location_not_found">ലൊക്കേഷൻ കണ്ടെത്താനായില്ല</string>
+    <string name="unknown_error">അജ്ഞാത പിശക് സംഭവിച്ചു</string>
+    <string name="fetching_location">ലൊക്കേഷൻ ലഭ്യമാക്കുന്നു</string>
+    <string name="getting_results">ഫലങ്ങൾ ലഭ്യമാക്കുന്നു</string>
+    <string name="processing_data">ഡാറ്റ പ്രോസസ്സ് ചെയ്യുന്നു</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">പുറത്തേക്ക് പോകൂ, കുറച്ച് വിശ്രമിക്കൂ, സ്വയം കാണൂ</string>
+    <string name="weather_forecast_description">അടുത്ത ഏതാനും ദിവസങ്ങളിലേക്കുള്ള കാലാവസ്ഥാ പ്രവചനം</string>
+    <string name="forecast_list_description">പ്രവചന ടൈലുകളുടെ പട്ടിക</string>
+    <string name="temperature">താപനില: %1$s</string>
+    <string name="weather_icon_description">പ്രവചനത്തിനുള്ള കാലാവസ്ഥാ ഐക്കൺ</string>
+    <string name="time">സമയം: %1$s</string>
+    <string name="feels_like">തോന്നുന്നത്</string>
+    <string name="temp_min">കുറഞ്ഞ താപനില</string>
+    <string name="temp_max">ഉയർന്ന താപനില</string>
+    <string name="precipitation_probability">മഴയുടെ സാധ്യത: %1$s</string>
+    <string name="wind_speed">കാറ്റിന്റെ വേഗത: %1$s</string>
+    <string name="cloudiness">മേഘാവൃതം: %1$s</string>
+    <string name="current_weather_description">%1$s നുള്ള നിലവിലെ കാലാവസ്ഥാ വിവരങ്ങൾ</string>
+    <string name="sunrise_sunset">സൂര്യോദയം: %1$s | സൂര്യാസ്തമയം: %2$s</string>
+    <string name="weather_condition_icon">കാലാവസ്ഥാ സ്ഥിതി ഐക്കൺ</string>
+    <string name="additional_temp_details">അധിക താപനില വിശദാംശങ്ങൾ</string>
+    <string name="weather_stats">കാലാവസ്ഥാ സ്ഥിതിവിവരക്കണക്കുകൾ</string>
+    <string name="wind">കാറ്റ്</string>
+    <string name="direction">ദിശ</string>
+    <string name="clouds">മേഘങ്ങൾ</string>
+    <string name="snow">മഞ്ഞ്</string>
+    <string name="visibility">ദൃശ്യപരത</string>
+    <string name="pressure">മർദ്ദം</string>
+    <string name="humidity">ആർദ്രത</string>
+
+    <!-- Weather Condition Descriptions -->
+    <string name="weather_200">ലഘു മഴയോടുകൂടിയ ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_201">മഴയോടുകൂടിയ ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_202">കനത്ത മഴയോടുകൂടിയ ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_210">ലഘു ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_211">ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_212">കനത്ത ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_221">ക്രമരഹിത ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_230">ലഘു ചാറ്റലോടുകൂടിയ ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_231">ചാറ്റലോടുകൂടിയ ഇടിമിന്നലോടുകൂടിയ കൊടുങ്കാറ്റ്</string>
+    <string name="weather_232">കനത്ത ചാറ്റലോടുകൂടിയ ഇടിമിന്നലോടുകൂടിയ കൊടുങ্কാറ്റ്</string>
+    <string name="weather_300">ലഘു ചാറ്റൽ</string>
+    <string name="weather_301">ചാറ്റൽ</string>
+    <string name="weather_302">കനത്ത ചാറ്റൽ</string>
+    <string name="weather_310">ലഘു ചാറ്റൽ മഴ</string>
+    <string name="weather_311">ചാറ്റൽ മഴ</string>
+    <string name="weather_312">കനത്ത ചാറ്റൽ മഴ</string>
+    <string name="weather_313">ഷവർ മഴയും ചാറ്റലും</string>
+    <string name="weather_314">കനത്ത ഷവർ മഴയും ചാറ്റലും</string>
+    <string name="weather_321">ഷവർ ചാറ്റൽ</string>
+    <string name="weather_500">ലഘു മഴ</string>
+    <string name="weather_501">മിതമായ മഴ</string>
+    <string name="weather_502">കനത്ത മഴ</string>
+    <string name="weather_503">വളരെ കനത്ത മഴ</string>
+    <string name="weather_504">അതിശക്തമായ മഴ</string>
+    <string name="weather_511">ഉറഞ്ഞ മഴ</string>
+    <string name="weather_520">ലഘു ഷവർ മഴ</string>
+    <string name="weather_521">ഷവർ മഴ</string>
+    <string name="weather_522">കനത്ത ഷവർ മഴ</string>
+    <string name="weather_531">ക്രമരഹിത ഷവർ മഴ</string>
+    <string name="weather_600">ലഘു മഞ്ഞ്</string>
+    <string name="weather_601">മഞ്ഞ്</string>
+    <string name="weather_602">കനത്ത മഞ്ഞ്</string>
+    <string name="weather_611">മഞ്ഞുവെള്ളം</string>
+    <string name="weather_612">ലഘു ഷവർ മഞ്ഞുവെള്ളം</string>
+    <string name="weather_613">ഷവർ മഞ്ഞുവെള്ളം</string>
+    <string name="weather_615">ലഘു മഴയും മഞ്ഞും</string>
+    <string name="weather_616">മഴയും മഞ്ഞും</string>
+    <string name="weather_620">ലഘു ഷവർ മഞ്ഞ്</string>
+    <string name="weather_621">ഷവർ മഞ്ഞ്</string>
+    <string name="weather_622">കനത്ത ഷവർ മഞ്ഞ്</string>
+    <string name="weather_701">മൂടൽമഞ്ഞ്</string>
+    <string name="weather_711">പുക</string>
+    <string name="weather_721">മൂടൽ</string>
+    <string name="weather_731">മണൽ/പൊടി ചുഴലികൾ</string>
+    <string name="weather_741">മഞ്ഞ്</string>
+    <string name="weather_751">മണൽ</string>
+    <string name="weather_761">പൊടി</string>
+    <string name="weather_762">അഗ്നിപർവ്വത ചാരം</string>
+    <string name="weather_771">പൊടിക്കാറ്റ്</string>
+    <string name="weather_781">ചുഴലിക്കാറ്റ്</string>
+    <string name="weather_800">നിർമ്മലമായ ആകാശം</string>
+    <string name="weather_801">കുറച്ച് മേഘങ്ങൾ: 11-25%</string>
+    <string name="weather_802">ചിതറിയ മേഘങ്ങൾ: 25-50%</string>
+    <string name="weather_803">പൊട്ടിയ മേഘങ്ങൾ: 51-84%</string>
+    <string name="weather_804">പൂർണ്ണ മേഘാവൃതം: 85-100%</string>
+</resources>

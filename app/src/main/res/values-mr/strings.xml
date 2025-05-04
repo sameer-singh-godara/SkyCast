@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">स्काय कास्ट</string>
+    <string name="loading">लोड करत आहे...</string>
+    <string name="na">उपलब्ध नाही</string>
+    <string name="get_weather_data">हवामान डेटा मिळवा</string>
+    <string name="back">मागे</string>
+    <string name="refresh">रिफ्रेश</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">होम</string>
+    <string name="search">शोध</string>
+    <string name="settings">सेटिंग्ज</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">शहराचे नाव प्रविष्ट करा (उदा., लंडन)</string>
+    <string name="searching">शोधत आहे...</string>
+    <string name="search_button">शोध</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">फॉन्ट आकार</string>
+    <string name="small">लहान</string>
+    <string name="medium">मध्यम</string>
+    <string name="large">मोठा</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">स्वरूप</string>
+    <string name="dark_mode">डार्क मोड</string>
+    <string name="light_mode">लाइट मोड</string>
+    <string name="toggle_to_dark_mode">डार्क मोडवर स्विच करा</string>
+    <string name="toggle_to_light_mode">लाइट मोडवर स्विच करा</string>
+    <string name="language">भाषा</string>
+    <string name="english">English</string>
+    <string name="hindi">हिन्दी</string>
+    <string name="punjabi">ਪੰਜਾਬੀ</string>
+    <string name="marathi">मराठी</string>
+    <string name="gujarati">ગુજરાતી</string>
+    <string name="bengali">বাংলা</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="telugu">తెలుగు</string>
+    <string name="malayalam">മലയാളം</string>
+    <string name="kannada">ಕನ್ನಡ</string>
+    <string name="urdu">اردو</string>
+    <string name="language_selection">भाषा निवड</string>
+    <string name="language_label">भाषा</string>
+    <string name="change_language">भाषा बदला</string>
+    <string name="cancel">रद्द करा</string>
+    <string name="set_language">भाषा सेट करा</string>
+    <string name="language_selection_dialog">भाषा निवड संवाद</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">मजेदार वैशिष्ट्य</string>
+    <string name="lets_have_fun">चला मजा करूया</string>
+    <string name="progress_bar">प्रोग्रेस बार %d%% वर</string>
+    <string name="progress_percentage">प्रगती टक्केवारी: %d%%</string>
+    <string name="status_message">स्थिती संदेश: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">स्थान सेवा सक्षम नाहीत. कृपया हवामान डेटा पाहण्यासाठी स्थान सक्षम करा.</string>
+    <string name="permission_granted">परवानगी मंजूर</string>
+    <string name="permission_denied">परवानगी नाकारली</string>
+    <string name="permissions_required">हवामान डेटा मिळवण्यासाठी सर्व आवश्यक परवानग्या द्या</string>
+    <string name="request_permissions">परवानग्या विनंती करा</string>
+    <string name="retrying_location">स्थान मिळवण्याचा पुन्हा प्रयत्न...</string>
+    <string name="location_not_found">स्थान सापडले नाही</string>
+    <string name="unknown_error">अज्ञात त्रुटी आली</string>
+    <string name="fetching_location">स्थान मिळवत आहे</string>
+    <string name="getting_results">परिणाम मिळवत आहे</string>
+    <string name="processing_data">डेटा प्रक्रिया करत आहे</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">बाहेर जा, थोडा विश्रांती घ्या आणि स्वतः पहा</string>
+    <string name="weather_forecast_description">पुढील काही दिवसांसाठी हवामान अंदाज</string>
+    <string name="forecast_list_description">अंदाज टाइल्सची यादी</string>
+    <string name="temperature">तापमान: %1$s</string>
+    <string name="weather_icon_description">अंदाजासाठी हवामान चिन्ह</string>
+    <string name="time">वेळ: %1$s</string>
+    <string name="feels_like">असे वाटते</string>
+    <string name="temp_min">किमान तापमान</string>
+    <string name="temp_max">कमाल तापमान</string>
+    <string name="precipitation_probability">पर्जन्याची शक्यता: %1$s</string>
+    <string name="wind_speed">वाऱ्याचा वेग: %1$s</string>
+    <string name="cloudiness">ढग: %1$s</string>
+    <string name="current_weather_description">%1$s साठी सध्याचे हवामान माहिती</string>
+    <string name="sunrise_sunset">सूर्योदय: %1$s | सूर्यास्त: %2$s</string>
+    <string name="weather_condition_icon">हवामान स्थिती चिन्ह</string>
+    <string name="additional_temp_details">अतिरिक्त तापमान तपशील</string>
+    <string name="weather_stats">हवामान आकडेवारी</string>
+    <string name="wind">वारा</string>
+    <string name="direction">दिशा</string>
+    <string name="clouds">ढग</string>
+    <string name="snow">बर्फ</string>
+    <string name="visibility">दृश्यमानता</string>
+    <string name="pressure">दबाव</string>
+    <string name="humidity">आर्द्रता</string>
+
+    <!-- Weather Condition Descriptions -->
+    <string name="weather_200">हलक्या पावसासह वादळ</string>
+    <string name="weather_201">पावसासह वादळ</string>
+    <string name="weather_202">मोठ्या पावसासह वादळ</string>
+    <string name="weather_210">हलके वादळ</string>
+    <string name="weather_211">वादळ</string>
+    <string name="weather_212">मोठे वादळ</string>
+    <string name="weather_221">अनियमित वादळ</string>
+    <string name="weather_230">हलक्या सरींसह वादळ</string>
+    <string name="weather_231">सरींसह वादळ</string>
+    <string name="weather_232">मोठ्या सरींसह वादळ</string>
+    <string name="weather_300">हलकी सरी</string>
+    <string name="weather_301">सरी</string>
+    <string name="weather_302">मोठी सरी</string>
+    <string name="weather_310">हलकी सरी पाऊस</string>
+    <string name="weather_311">सरी पाऊस</string>
+    <string name="weather_312">मोठी सरी पाऊस</string>
+    <string name="weather_313">शॉवर आणि सरी</string>
+    <string name="weather_314">मोठी शॉवर आणि सरी</string>
+    <string name="weather_321">शॉवर सरी</string>
+    <string name="weather_500">हलका पाऊस</string>
+    <string name="weather_501">मध्यम पाऊस</string>
+    <string name="weather_502">मोठा पाऊस</string>
+    <string name="weather_503">खूप मोठा पाऊस</string>
+    <string name="weather_504">अत्यंत पाऊस</string>
+    <string name="weather_511">गोठवणारा पाऊस</string>
+    <string name="weather_520">हलका शॉवर पाऊस</string>
+    <string name="weather_521">शॉवर पाऊस</string>
+    <string name="weather_522">मोठा शॉवर पाऊस</string>
+    <string name="weather_531">अनियमित शॉवर पाऊस</string>
+    <string name="weather_600">हलका बर्फ</string>
+    <string name="weather_601">बर्फ</string>
+    <string name="weather_602">मोठा बर्फ</string>
+    <string name="weather_611">हिमवर्षाव</string>
+    <string name="weather_612">हलका शॉवर हिमवर्षाव</string>
+    <string name="weather_613">शॉवर हिमवर्षाव</string>
+    <string name="weather_615">हलका पाऊस आणि बर्फ</string>
+    <string name="weather_616">पाऊस आणि बर्फ</string>
+    <string name="weather_620">हलका शॉवर बर्फ</string>
+    <string name="weather_621">शॉवर बर्फ</string>
+    <string name="weather_622">मोठा शॉवर बर्फ</string>
+    <string name="weather_701">धुके</string>
+    <string name="weather_711">धूर</string>
+    <string name="weather_721">धुंध</string>
+    <string name="weather_731">वाळू/धूळ चक्र</string>
+    <string name="weather_741">धुके</string>
+    <string name="weather_751">वाळू</string>
+    <string name="weather_761">धूळ</string>
+    <string name="weather_762">ज्वालामुखी राख</string>
+    <string name="weather_771">वादळी वारे</string>
+    <string name="weather_781">चक्रीवादळ</string>
+    <string name="weather_800">स्वच्छ आकाश</string>
+    <string name="weather_801">काही ढग: 11-25%</string>
+    <string name="weather_802">विखुरलेले ढग: 25-50%</string>
+    <string name="weather_803">तुटलेले ढग: 51-84%</string>
+    <string name="weather_804">पूर्ण ढग: 85-100%</string>
+</resources>

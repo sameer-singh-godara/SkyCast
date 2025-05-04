@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">ஸ்கைகாஸ்ட்</string>
+    <string name="loading">ஏற்றப்படுகிறது...</string>
+    <string name="na">கிடைக்கவில்லை</string>
+    <string name="get_weather_data">வானிலை தரவைப் பெறு</string>
+    <string name="back">பின்னால்</string>
+    <string name="refresh">புதுப்பிக்கவும்</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">முகப்பு</string>
+    <string name="search">தேடல்</string>
+    <string name="settings">அமைப்புகள்</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">நகரத்தின் பெயரை உள்ளிடவும் (எ.கா., லண்டன்)</string>
+    <string name="searching">தேடப்படுகிறது...</string>
+    <string name="search_button">தேடல்</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">எழுத்துரு அளவு</string>
+    <string name="small">சிறிய</string>
+    <string name="medium">நடுத்தர</string>
+    <string name="large">பெரிய</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">தோற்றம்</string>
+    <string name="dark_mode">இருண்ட பயன்முறை</string>
+    <string name="light_mode">வெளிர் பயன்முறை</string>
+    <string name="toggle_to_dark_mode">இருண்ட பயன்முறைக்கு மாறவும்</string>
+    <string name="toggle_to_light_mode">வெளிர் பயன்முறைக்கு மாறவும்</string>
+    <string name="language">மொழி</string>
+    <string name="english">English</string>
+    <string name="hindi">हिन्दी</string>
+    <string name="punjabi">ਪੰਜਾਬੀ</string>
+    <string name="marathi">मराठी</string>
+    <string name="gujarati">ગુજરાતી</string>
+    <string name="bengali">বাংলা</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="telugu">తెలుగు</string>
+    <string name="malayalam">മലയാളം</string>
+    <string name="kannada">ಕನ್ನಡ</string>
+    <string name="urdu">اردو</string>
+    <string name="language_selection">மொழி தேர்வு</string>
+    <string name="language_label">மொழி</string>
+    <string name="change_language">மொழியை மாற்றவும்</string>
+    <string name="cancel">ரத்து செய்</string>
+    <string name="set_language">மொழியை அமைக்கவும்</string>
+    <string name="language_selection_dialog">மொழி தேர்வு உரையாடல்</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">வேடிக்கையான அம்சம்</string>
+    <string name="lets_have_fun">வாருங்கள் வேடிக்கை பார்ப்போம்</string>
+    <string name="progress_bar">முன்னேற்றப் பட்டை %d%% இல்</string>
+    <string name="progress_percentage">முன்னேற்ற சதவீதம்: %d%%</string>
+    <string name="status_message">நிலை செய்தி: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">இடம் சேவைகள் இயக்கப்படவில்லை. வானிலை தரவைப் பார்க்க இடத்தை இயக்கவும்.</string>
+    <string name="permission_granted">அனுமதி வழங்கப்பட்டது</string>
+    <string name="permission_denied">அனுமதி மறுக்கப்பட்டது</string>
+    <string name="permissions_required">வானிலை தரவைப் பெற அனைத்து தேவையான அனுமதிகளையும் வழங்கவும்</string>
+    <string name="request_permissions">அனுமதிகளைக் கோரவும்</string>
+    <string name="retrying_location">இடத்தைப் பெற மீண்டும் முயற்சிக்கிறது...</string>
+    <string name="location_not_found">இடம் கிடைக்கவில்லை</string>
+    <string name="unknown_error">அறியப்படாத பிழை ஏற்பட்டது</string>
+    <string name="fetching_location">இடத்தைப் பெறுகிறது</string>
+    <string name="getting_results">முடிவுகளைப் பெறுகிறது</string>
+    <string name="processing_data">தரவை செயலாக்குகிறது</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">வெளியே செல்லுங்கள், சிறிது ஓய்வு எடுத்து, நேரடியாக பாருங்கள்</string>
+    <string name="weather_forecast_description">அடுத்த சில நாட்களுக்கான வானிலை முன்னறிவிப்பு</string>
+    <string name="forecast_list_description">முன்னறிவிப்பு ஓடுகளின் பட்டியல்</string>
+    <string name="temperature">வெப்பநிலை: %1$s</string>
+    <string name="weather_icon_description">முன்னறிவிப்புக்கான வானிலை ஐகான்</string>
+    <string name="time">நேரம்: %1$s</string>
+    <string name="feels_like">உணரப்படுவது</string>
+    <string name="temp_min">குறைந்தபட்ச வெப்பநிலை</string>
+    <string name="temp_max">அதிகபட்ச வெப்பநிலை</string>
+    <string name="precipitation_probability">மழை வாய்ப்பு: %1$s</string>
+    <string name="wind_speed">காற்று வேகம்: %1$s</string>
+    <string name="cloudiness">மேகமூட்டம்: %1$s</string>
+    <string name="current_weather_description">%1$s க்கான தற்போதைய வானிலை தகவல்</string>
+    <string name="sunrise_sunset">சூரிய உதயம்: %1$s | சூரிய அஸ்தமனம்: %2$s</string>
+    <string name="weather_condition_icon">வானிலை நிலை ஐகான்</string>
+    <string name="additional_temp_details">கூடுதல் வெப்பநிலை விவரங்கள்</string>
+    <string name="weather_stats">வானிலை புள்ளிவிவரங்கள்</string>
+    <string name="wind">காற்று</string>
+    <string name="direction">திசை</string>
+    <string name="clouds">மேகங்கள்</string>
+    <string name="snow">பனி</string>
+    <string name="visibility">புலப்படுத்தல்</string>
+    <string name="pressure">அழுத்தம்</string>
+    <string name="humidity">ஈரப்பதம்</string>
+
+    <!-- Weather Condition Descriptions -->
+    <string name="weather_200">லேசான மழையுடன் இடியுடன் கூடிய புயல்</string>
+    <string name="weather_201">மழையுடன் இடியுடன் கூடிய புயல்</string>
+    <string name="weather_202">கனமழையுடன் இடியுடன் கூடிய புயல்</string>
+    <string name="weather_210">லேசான இடியுடன் கூடிய புயல்</string>
+    <string name="weather_211">இடியுடன் கூடிய புயல்</string>
+    <string name="weather_212">கனமான இடியுடன் கூடிய புயல்</string>
+    <string name="weather_221">ஒழுங்கற்ற இடியுடன் கூடிய புயல்</string>
+    <string name="weather_230">லேசான சாரல் மழையுடன் இடியுடன் கூடிய புயல்</string>
+    <string name="weather_231">சாரல் மழையுடன் இடியுடன் கூடிய புயல்</string>
+    <string name="weather_232">கனமான சாரல் மழையுடன் இடியுடன் கூடிய புயல்</string>
+    <string name="weather_300">லேசான சாரல் மழை</string>
+    <string name="weather_301">சாரல் மழை</string>
+    <string name="weather_302">கனமான சாரல் மழை</string>
+    <string name="weather_310">லேசான சாரல் மழை மழை</string>
+    <string name="weather_311">சாரல் மழை மழை</string>
+    <string name="weather_312">கனமான சாரல் மழை மழை</string>
+    <string name="weather_313">மழை மற்றும் சாரல் மழை</string>
+    <string name="weather_314">கனமான மழை மற்றும் சாரல் மழை</string>
+    <string name="weather_321">மழை சாரல் மழை</string>
+    <string name="weather_500">லேசான மழை</string>
+    <string name="weather_501">மிதமான மழை</string>
+    <string name="weather_502">கனமான மழை</string>
+    <string name="weather_503">மிகவும் கனமான மழை</string>
+    <string name="weather_504">தீவிர மழை</string>
+    <string name="weather_511">உறைந்த மழை</string>
+    <string name="weather_520">லேசான மழை மழை</string>
+    <string name="weather_521">மழை மழை</string>
+    <string name="weather_522">கனமான மழை மழை</string>
+    <string name="weather_531">ஒழுங்கற்ற மழை மழை</string>
+    <string name="weather_600">லேசான பனி</string>
+    <string name="weather_601">பனி</string>
+    <string name="weather_602">கனமான பனி</string>
+    <string name="weather_611">பனி மழை</string>
+    <string name="weather_612">லேசான மழை பனி மழை</string>
+    <string name="weather_613">மழை பனி மழை</string>
+    <string name="weather_615">லேசான மழை மற்றும் பனி</string>
+    <string name="weather_616">மழை மற்றும் பனி</string>
+    <string name="weather_620">லேசான மழை பனி</string>
+    <string name="weather_621">மழை பனி</string>
+    <string name="weather_622">கனமான மழை பனி</string>
+    <string name="weather_701">மூடுபனி</string>
+    <string name="weather_711">புகை</string>
+    <string name="weather_721">மூடுபனி</string>
+    <string name="weather_731">மணல்/தூசி சுழல்கள்</string>
+    <string name="weather_741">பனி மூட்டம்</string>
+    <string name="weather_751">மணல்</string>
+    <string name="weather_761">தூசி</string>
+    <string name="weather_762">எரிமலை சாம்பல்</string>
+    <string name="weather_771">புயல் காற்று</string>
+    <string name="weather_781">சூறாவளி</string>
+    <string name="weather_800">தெளிவான வானம்</string>
+    <string name="weather_801">சில மேகங்கள்: 11-25%</string>
+    <string name="weather_802">சிதறிய மேகங்கள்: 25-50%</string>
+    <string name="weather_803">உடைந்த மேகங்கள்: 51-84%</string>
+    <string name="weather_804">முழு மேகமூட்டம்: 85-100%</string>
+</resources>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">ಸ್ಕೈಕಾಸ್ಟ್</string>
+    <string name="loading">ಲೋಡ್ ಆಗುತ್ತಿದೆ...</string>
+    <string name="na">ಲಭ್ಯವಿಲ್ಲ</string>
+    <string name="get_weather_data">ಹವಾಮಾನ ಡೇಟಾವನ್ನು ಪಡೆಯಿರಿ</string>
+    <string name="back">ಹಿಂದೆ</string>
+    <string name="refresh">ರಿಫ್ರೆಶ್</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">ಮುಖಪುಟ</string>
+    <string name="search">ಹುಡುಕಾಟ</string>
+    <string name="settings">ಸೆಟ್ಟಿಂಗ್‌ಗಳು</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">ನಗರದ ಹೆಸರನ್ನು ನಮೂದಿಸಿ (ಉದಾ., ಲಂಡನ್)</string>
+    <string name="searching">ಹುಡುಕಾಟ ನಡೆಯುತ್ತಿದೆ...</string>
+    <string name="search_button">ಹುಡುಕಾಟ</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">ಫಾಂಟ್ ಗಾತ್ರ</string>
+    <string name="small">ಚಿಕ್ಕದು</string>
+    <string name="medium">ಮಧ್ಯಮ</string>
+    <string name="large">ದೊಡ್ಡದು</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">ಗೋಚರಿಕೆ</string>
+    <string name="dark_mode">ಡಾರ್ಕ್ ಮೋಡ್</string>
+    <string name="light_mode">ಲೈಟ್ ಮೋಡ್</string>
+    <string name="toggle_to_dark_mode">ಡಾರ್ಕ್ ಮೋಡ್‌ಗೆ ಬದಲಾಯಿಸಿ</string>
+    <string name="toggle_to_light_mode">ಲೈಟ್ ಮೋಡ್‌ಗೆ ಬದಲಾಯಿಸಿ</string>
+    <string name="language">ಭಾಷೆ</string>
+    <string name="english">English</string>
+    <string name="hindi">हिन्दी</string>
+    <string name="punjabi">ਪੰਜਾਬੀ</string>
+    <string name="marathi">मराठी</string>
+    <string name="gujarati">ગુજરાતી</string>
+    <string name="bengali">বাংলা</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="telugu">తెలుగు</string>
+    <string name="malayalam">മലയാളം</string>
+    <string name="kannada">ಕನ್ನಡ</string>
+    <string name="urdu">اردو</string>
+    <string name="language_selection">ಭಾಷೆ ಆಯ್ಕೆ</string>
+    <string name="language_label">ಭಾಷೆ</string>
+    <string name="change_language">ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸಿ</string>
+    <string name="cancel">ರದ್ದುಗೊಳಿಸಿ</string>
+    <string name="set_language">ಭಾಷೆಯನ್ನು ಸೆಟ್ ಮಾಡಿ</string>
+    <string name="language_selection_dialog">ಭಾಷೆ ಆಯ್ಕೆ ಡೈಲಾಗ್</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">ವಿನೋದಾತ್ಮಕ ವೈಶಿಷ್ಟ್ಯ</string>
+    <string name="lets_have_fun">ಬನ್ನಿ, ಸಂತೋಷವಾಗಿರೋಣ</string>
+    <string name="progress_bar">ಪ್ರಗತಿ ಪಟ್ಟಿಯು %d%% ನಲ್ಲಿದೆ</string>
+    <string name="progress_percentage">ಪ್ರಗತಿ ಶೇಕಡಾವಾರು: %d%%</string>
+    <string name="status_message">ಸ್ಥಿತಿ ಸಂದೇಶ: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">ಸ್ಥಳ ಸೇವೆಗಳು ಸಕ್ರಿಯಗೊಂಡಿಲ್ಲ. ಹವಾಮಾನ ಡೇಟಾವನ್ನು ವೀಕ್ಷಿಸಲು ಸ್ಥಳವನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ.</string>
+    <string name="permission_granted">ಅನುಮತಿ ನೀಡಲಾಗಿದೆ</string>
+    <string name="permission_denied">ಅನುಮತಿ ನಿರಾಕರಿಸಲಾಗಿದೆ</string>
+    <string name="permissions_required">ಹವಾಮಾನ ಡೇಟಾವನ್ನು ಪಡೆಯಲು ಎಲ್ಲಾ ಅಗತ್ಯ ಅನುಮತಿಗಳನ್ನು ನೀಡಿ</string>
+    <string name="request_permissions">ಅನುಮತಿಗಳನ್ನು ಕೋರಿಕೆ ಮಾಡಿ</string>
+    <string name="retrying_location">ಸ್ಥಳವನ್ನು ಪಡೆಯಲು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸುತ್ತಿದೆ...</string>
+    <string name="location_not_found">ಸ್ಥಳ ಕಂಡುಬಂದಿಲ್ಲ</string>
+    <string name="unknown_error">ಅಪರಿಚಿತ ದೋಷ ಸಂಭವಿಸಿದೆ</string>
+    <string name="fetching_location">ಸ್ಥಳವನ್ನು ಪಡೆಯುತ್ತಿದೆ</string>
+    <string name="getting_results">ಫಲಿತಾಂಶಗಳನ್ನು ಪಡೆಯುತ್ತಿದೆ</string>
+    <string name="processing_data">ಡೇಟಾವನ್ನು ಸಂಸ್ಕರಿಸುತ್ತಿದೆ</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">ಹೊರಗೆ ಹೋಗಿ, ಸ್ವಲ್ಪ ವಿಶ್ರಾಂತಿ ಪಡೆಯಿರಿ ಮತ್ತು ಸ್ವತಃ ನೋಡಿಕೊಳ್ಳಿ</string>
+    <string name="weather_forecast_description">ಮುಂದಿನ ಕೆಲವು ದಿನಗಳಿಗೆ ಹವಾಮಾನ ಮುನ್ಸೂಚನೆ</string>
+    <string name="forecast_list_description">ಮುನ್ಸೂಚನೆ ಟೈಲ್‌ಗಳ ಪಟ್ಟಿ</string>
+    <string name="temperature">ತಾಪಮಾನ: %1$s</string>
+    <string name="weather_icon_description">ಮುನ್ಸೂಚನೆಗಾಗಿ ಹವಾಮಾನ ಐಕಾನ್</string>
+    <string name="time">ಸಮಯ: %1$s</string>
+    <string name="feels_like">ಅನಿಸುತ್ತದೆ</string>
+    <string name="temp_min">ಕನಿಷ್ಠ ತಾಪಮಾನ</string>
+    <string name="temp_max">ಗರಿಷ್ಠ ತಾಪಮಾನ</string>
+    <string name="precipitation_probability">ಮಳೆಯ ಸಂಭವನೀಯತೆ: %1$s</string>
+    <string name="wind_speed">ಗಾಳಿಯ ವೇಗ: %1$s</string>
+    <string name="cloudiness">ಮೋಡ ಕವಿದಿರುವಿಕೆ: %1$s</string>
+    <string name="current_weather_description">%1$s ಗಾಗಿ ಪ್ರಸ್ತುತ ಹವಾಮಾನ ಮಾಹಿತಿ</string>
+    <string name="sunrise_sunset">ಸೂರ್ಯೋದಯ: %1$s | ಸೂರ್ಯಾಸ್ತ: %2$s</string>
+    <string name="weather_condition_icon">ಹವಾಮಾನ ಸ್ಥಿತಿ ಐಕಾನ್</string>
+    <string name="additional_temp_details">ಹೆಚ್ಚುವರಿ ತಾಪಮಾನ ವಿವರಗಳು</string>
+    <string name="weather_stats">ಹವಾಮಾನ ಅಂಕಿಅಂಶಗಳು</string>
+    <string name="wind">ಗಾಳಿ</string>
+    <string name="direction">ದಿಕ್ಕು</string>
+    <string name="clouds">ಮೋಡಗಳು</string>
+    <string name="snow">ಹಿಮ</string>
+    <string name="visibility">ಗೋಚರತೆ</string>
+    <string name="pressure">ಒತ್ತಡ</string>
+    <string name="humidity">ಆರ್ದ್ರತೆ</string>
+
+    <!-- Weather Condition Descriptions -->
+    <string name="weather_200">ಸೌಮ್ಯ ಮಳೆಯೊಂದಿಗೆ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_201">ಮಳೆಯೊಂದಿಗೆ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_202">ಭಾರೀ ಮಳೆಯೊಂದಿಗೆ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_210">ಸೌಮ್ಯ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_211">ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_212">ಭಾರೀ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_221">ಅನಿಯಮಿತ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_230">ಸೌಮ್ಯ ತುಂತುರು ಮಳೆಯೊಂದಿಗೆ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_231">ತುಂತುರು ಮಳೆಯೊಂದಿಗೆ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_232">ಭಾರೀ ತುಂತುರು ಮಳೆಯೊಂದಿಗೆ ಗುಡುಗಿನ ಚಂಡಮಾರುತ</string>
+    <string name="weather_300">ಸೌಮ್ಯ ತುಂತುರು ಮಳೆ</string>
+    <string name="weather_301">ತುಂತುರು ಮಳೆ</string>
+    <string name="weather_302">ಭಾರೀ ತುಂತುರು ಮಳೆ</string>
+    <string name="weather_310">ಸೌಮ್ಯ ತುಂತುರು ಮಳೆಯ ಮಳೆ</string>
+    <string name="weather_311">ತುಂತುರು ಮಳೆಯ ಮಳೆ</string>
+    <string name="weather_312">ಭಾರೀ ತುಂತುರು ಮಳೆಯ ಮಳೆ</string>
+    <string name="weather_313">ಶವರ್ ಮಳೆ ಮತ್ತು ತುಂತುರು ಮಳೆ</string>
+    <string name="weather_314">ಭಾರೀ ಶವರ್ ಮಳೆ ಮತ್ತು ತುಂತುರು ಮಳೆ</string>
+    <string name="weather_321">ಶವರ್ ತುಂತುರು ಮಳೆ</string>
+    <string name="weather_500">ಸೌಮ್ಯ ಮಳೆ</string>
+    <string name="weather_501">ಮಧ್ಯಮ ಮಳೆ</string>
+    <string name="weather_502">ಭಾರೀ ಮಳೆ</string>
+    <string name="weather_503">ಬಹಳ ಭಾರೀ ಮಳೆ</string>
+    <string name="weather_504">ತೀವ್ರ ಮಳೆ</string>
+    <string name="weather_511">ಕಲ್ಲಾದ ಮಳೆ</string>
+    <string name="weather_520">ಸೌಮ್ಯ ಶವರ್ ಮಳೆ</string>
+    <string name="weather_521">ಶವರ್ ಮಳೆ</string>
+    <string name="weather_522">ಭಾರೀ ಶವರ್ ಮಳೆ</string>
+    <string name="weather_531">ಅನಿಯಮಿತ ಶವರ್ ಮಳೆ</string>
+    <string name="weather_600">ಸೌಮ್ಯ ಹಿಮ</string>
+    <string name="weather_601">ಹಿಮ</string>
+    <string name="weather_602">ಭಾರೀ ಹಿಮ</string>
+    <string name="weather_611">ಹಿಮ ಮಳೆ</string>
+    <string name="weather_612">ಸೌಮ್ಯ ಶವರ್ ಹಿಮ ಮಳೆ</string>
+    <string name="weather_613">ಶವರ್ ಹಿಮ ಮಳೆ</string>
+    <string name="weather_615">ಸೌಮ್ಯ ಮಳೆ ಮತ್ತು ಹಿಮ</string>
+    <string name="weather_616">ಮಳೆ ಮತ್ತು ಹಿಮ</string>
+    <string name="weather_620">ಸೌಮ್ಯ ಶವರ್ ಹಿಮ</string>
+    <string name="weather_621">ಶವರ್ ಹಿಮ</string>
+    <string name="weather_622">ಭಾರೀ ಶವರ್ ಹಿಮ</string>
+    <string name="weather_701">ಮಂಜು</string>
+    <string name="weather_711">ಹೊಗೆ</string>
+    <string name="weather_721">ಮಂಜಿನ ಮಂಜು</string>
+    <string name="weather_731">ಮರಳು/ಧೂಳಿನ ಸುಂಟರಗಾಳಿ</string>
+    <string name="weather_741">ಮಂಜು</string>
+    <string name="weather_751">ಮರಳು</string>
+    <string name="weather_761">ಧೂಳು</string>
+    <string name="weather_762">ಜ್ವಾಲಾಮುಖಿ ಬೂದಿ</string>
+    <string name="weather_771">ಗಾಳಿಯ ಗುಂಡು</string>
+    <string name="weather_781">ಸುಂಟರಗಾಳಿ</string>
+    <string name="weather_800">ಸ್ಪಷ್ಟ ಆಕಾಶ</string>
+    <string name="weather_801">ಕೆಲವು ಮೋಡಗಳು: 11-25%</string>
+    <string name="weather_802">ಚದುರಿದ ಮೋಡಗಳು: 25-50%</string>
+    <string name="weather_803">ಮುರಿದ ಮೋಡಗಳು: 51-84%</string>
+    <string name="weather_804">ಪೂರ್ಣ ಮೋಡ ಕವಿದಿರುವಿಕೆ: 85-100%</string>
+</resources>

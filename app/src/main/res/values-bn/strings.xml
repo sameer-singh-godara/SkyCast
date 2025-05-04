@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- General App Strings -->
+    <string name="app_name">স্কাইকাস্ট</string>
+    <string name="loading">লোড হচ্ছে...</string>
+    <string name="na">প্রাপ্য নয়</string>
+    <string name="get_weather_data">আবহাওয়ার তথ্য পান</string>
+    <string name="back">পিছনে</string>
+    <string name="refresh">রিফ্রেশ</string>
+
+    <!-- Navigation Strings -->
+    <string name="home">হোম</string>
+    <string name="search">অনুসন্ধান</string>
+    <string name="settings">সেটিংস</string>
+
+    <!-- Search Screen Strings -->
+    <string name="enter_city_name">শহরের নাম লিখুন (যেমন, লন্ডন)</string>
+    <string name="searching">অনুসন্ধান করা হচ্ছে...</string>
+    <string name="search_button">অনুসন্ধান</string>
+
+    <!-- Settings Screen Strings -->
+    <string name="font_size">ফন্টের আকার</string>
+    <string name="small">ছোট</string>
+    <string name="medium">মাঝারি</string>
+    <string name="large">বড়</string>
+    <string name="decrease_font_size">-ve</string>
+    <string name="increase_font_size">+ve</string>
+    <string name="appearance">চেহারা</string>
+    <string name="dark_mode">ডার্ক মোড</string>
+    <string name="light_mode">লাইট মোড</string>
+    <string name="toggle_to_dark_mode">ডার্ক মোডে স্যুইচ করুন</string>
+    <string name="toggle_to_light_mode">লাইট মোডে স্যুইচ করুন</string>
+    <string name="language">ভাষা</string>
+    <string name="english">English</string>
+    <string name="hindi">हिन्दी</string>
+    <string name="punjabi">ਪੰਜਾਬੀ</string>
+    <string name="marathi">मराठी</string>
+    <string name="gujarati">ગુજરાતી</string>
+    <string name="bengali">বাংলা</string>
+    <string name="tamil">தமிழ்</string>
+    <string name="telugu">తెలుగు</string>
+    <string name="malayalam">മലയാളം</string>
+    <string name="kannada">ಕನ್ನಡ</string>
+    <string name="urdu">اردو</string>
+    <string name="language_selection">ভাষা নির্বাচন</string>
+    <string name="language_label">ভাষা</string>
+    <string name="change_language">ভাষা পরিবর্তন করুন</string>
+    <string name="cancel">বাতিল</string>
+    <string name="set_language">ভাষা সেট করুন</string>
+    <string name="language_selection_dialog">ভাষা নির্বাচন ডায়ালগ</string>
+
+    <!-- Fun Feature Strings -->
+    <string name="fun_feature">মজার ফিচার</string>
+    <string name="lets_have_fun">আসুন মজা করি</string>
+    <string name="progress_bar">প্রোগ্রেস বার %d%% এ</string>
+    <string name="progress_percentage">অগ্রগতির শতাংশ: %d%%</string>
+    <string name="status_message">স্থিতি বার্তা: %s</string>
+
+    <!-- Error and Status Messages -->
+    <string name="location_services_disabled">অবস্থান পরিষেবা সক্ষম নয়। আবহাওয়ার তথ্য দেখতে অবস্থান সক্ষম করুন।</string>
+    <string name="permission_granted">অনুমতি দেওয়া হয়েছে</string>
+    <string name="permission_denied">অনুমতি অস্বীকৃত</string>
+    <string name="permissions_required">আবহাওয়ার তথ্য আনতে সমস্ত প্রয়োজনীয় অনুমতি দিন</string>
+    <string name="request_permissions">অনুমতি অনুরোধ করুন</string>
+    <string name="retrying_location">অবস্থান আনার পুনরায় চেষ্টা...</string>
+    <string name="location_not_found">অবস্থান পাওয়া যায়নি</string>
+    <string name="unknown_error">অজানা ত্রুটি ঘটেছে</string>
+    <string name="fetching_location">অবস্থান আনা হচ্ছে</string>
+    <string name="getting_results">ফলাফল পাওয়া হচ্ছে</string>
+    <string name="processing_data">তথ্য প্রক্রিয়াকরণ করা হচ্ছে</string>
+
+    <!-- Weather and Forecast Strings -->
+    <string name="go_outside_message">বাইরে যান, কিছু বিশ্রাম নিন এবং নিজে দেখুন</string>
+    <string name="weather_forecast_description">আগামী কয়েক দিনের জন্য আবহাওয়ার পূর্বাভাস</string>
+    <string name="forecast_list_description">পূর্বাভাস টাইলসের তালিকা</string>
+    <string name="temperature">তাপমাত্রা: %1$s</string>
+    <string name="weather_icon_description">পূর্বাভাসের জন্য আবহাওয়ার আইকন</string>
+    <string name="time">সময়: %1$s</string>
+    <string name="feels_like">মনে হয়</string>
+    <string name="temp_min">ন্যূনতম তাপমাত্রা</string>
+    <string name="temp_max">সর্বোচ্চ তাপমাত্রা</string>
+    <string name="precipitation_probability">বৃষ্টিপাতের সম্ভাবনা: %1$s</string>
+    <string name="wind_speed">বাতাসের গতি: %1$s</string>
+    <string name="cloudiness">মেঘলা: %1$s</string>
+    <string name="current_weather_description">%1$s এর জন্য বর্তমান আবহাওয়ার তথ্য</string>
+    <string name="sunrise_sunset">সূর্যোদয়: %1$s | সূর্যাস্ত: %2$s</string>
+    <string name="weather_condition_icon">আবহাওয়ার অবস্থা আইকন</string>
+    <string name="additional_temp_details">অতিরিক্ত তাপমাত্রার বিবরণ</string>
+    <string name="weather_stats">আবহাওয়ার পরিসংখ্যান</string>
+    <string name="wind">বাতাস</string>
+    <string name="direction">দিক</string>
+    <string name="clouds">মেঘ</string>
+    <string name="snow">তুষার</string>
+    <string name="visibility">দৃশ্যমানতা</string>
+    <string name="pressure">চাপ</string>
+    <string name="humidity">আর্দ্রতা</string>
+
+    <!-- Weather Condition Descriptions -->
+    <string name="weather_200">হালকা বৃষ্টির সাথে ঝড়</string>
+    <string name="weather_201">বৃষ্টির সাথে ঝড়</string>
+    <string name="weather_202">ভারী বৃষ্টির সাথে ঝড়</string>
+    <string name="weather_210">হালকা ঝড়</string>
+    <string name="weather_211">ঝড়</string>
+    <string name="weather_212">ভারী ঝড়</string>
+    <string name="weather_221">অনিয়মিত ঝড়</string>
+    <string name="weather_230">হালকা গুঁড়ি গুঁড়ি বৃষ্টির সাথে ঝড়</string>
+    <string name="weather_231">গুঁড়ি গুঁড়ি বৃষ্টির সাথে ঝড়</string>
+    <string name="weather_232">ভারী গুঁড়ি গুঁড়ি বৃষ্টির সাথে ঝড়</string>
+    <string name="weather_300">হালকা গুঁড়ি গুঁড়ি বৃষ্টি</string>
+    <string name="weather_301">গুঁড়ি গুঁড়ি বৃষ্টি</string>
+    <string name="weather_302">ভারী গুঁড়ি গুঁড়ি বৃষ্টি</string>
+    <string name="weather_310">হালকা গুঁড়ি গুঁড়ি বৃষ্টির বৃষ্টি</string>
+    <string name="weather_311">গুঁড়ি গুঁড়ি বৃষ্টির বৃষ্টি</string>
+    <string name="weather_312">ভারী গুঁড়ি গুঁড়ি বৃষ্টির বৃষ্টি</string>
+    <string name="weather_313">ঝরনা বৃষ্টি এবং গুঁড়ি গুঁড়ি বৃষ্টি</string>
+    <string name="weather_314">ভারী ঝরনা বৃষ্টি এবং গুঁড়ি গুঁড়ি বৃষ্টি</string>
+    <string name="weather_321">ঝরনা গুঁড়ি গুঁড়ি বৃষ্টি</string>
+    <string name="weather_500">হালকা বৃষ্টি</string>
+    <string name="weather_501">মাঝারি বৃষ্টি</string>
+    <string name="weather_502">ভারী বৃষ্টি</string>
+    <string name="weather_503">খুব ভারী বৃষ্টি</string>
+    <string name="weather_504">চরম বৃষ্টি</string>
+    <string name="weather_511">জমাট বৃষ্টি</string>
+    <string name="weather_520">হালকা ঝরনা বৃষ্টি</string>
+    <string name="weather_521">ঝরনা বৃষ্টি</string>
+    <string name="weather_522">ভারী ঝরনা বৃষ্টি</string>
+    <string name="weather_531">অনিয়মিত ঝরনা বৃষ্টি</string>
+    <string name="weather_600">হালকা তুষার</string>
+    <string name="weather_601">তুষার</string>
+    <string name="weather_602">ভারী তুষার</string>
+    <string name="weather_611">তুষার বৃষ্টি</string>
+    <string name="weather_612">হালকা ঝরনা তুষার বৃষ্টি</string>
+    <string name="weather_613">ঝরনা তুষার বৃষ্টি</string>
+    <string name="weather_615">হালকা বৃষ্টি এবং তুষার</string>
+    <string name="weather_616">বৃষ্টি এবং তুষার</string>
+    <string name="weather_620">হালকা ঝরনা তুষার</string>
+    <string name="weather_621">ঝরনা তুষার</string>
+    <string name="weather_622">ভারী ঝরনা তুষার</string>
+    <string name="weather_701">কুয়াশা</string>
+    <string name="weather_711">ধোঁয়া</string>
+    <string name="weather_721">ধোঁয়াশা</string>
+    <string name="weather_731">বালি/ধুলো ঘূর্ণি</string>
+    <string name="weather_741">কুয়াশা</string>
+    <string name="weather_751">বালি</string>
+    <string name="weather_761">ধুলো</string>
+    <string name="weather_762">আগ্নেয়গিরির ছাই</string>
+    <string name="weather_771">ঝড়ো হাওয়া</string>
+    <string name="weather_781">টর্নেডো</string>
+    <string name="weather_800">পরিষ্কার আকাশ</string>
+    <string name="weather_801">কিছু মেঘ: 11-25%</string>
+    <string name="weather_802">বিক্ষিপ্ত মেঘ: 25-50%</string>
+    <string name="weather_803">ভাঙা মেঘ: 51-84%</string>
+    <string name="weather_804">পুরো মেঘলা: 85-100%</string>
+</resources>
