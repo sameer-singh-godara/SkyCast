@@ -51,7 +51,7 @@ fun ForecastSection(
                         .fillMaxWidth()
                         .semantics { contentDescription = context.getString(R.string.forecast_list_description) },
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 16.dp) // Only vertical padding
+                    contentPadding = PaddingValues(vertical = 16.dp)
                 ) {
                     items(listForecast.withIndex().toList()) { indexedItem ->
                         val index = indexedItem.index
@@ -65,7 +65,7 @@ fun ForecastSection(
                                 buildIcon(it, isBigSize = false)
                             } ?: context.getString(R.string.na),
                             time = item.dt?.let {
-                                timestampToHumanDate(it.toLong(), "EEE, HH:mm\ndd-MM-YYYY")
+                                timestampToHumanDate(it.toLong(), "EEE, H:mm\ndd-MM-YYYY")
                             } ?: context.getString(R.string.na),
                             feelsLike = item.main?.feelsLike?.let { "%.1f".format(it) + "°C" } ?: context.getString(R.string.na),
                             pop = item.pop?.let { "${(it * 100).toInt()}%" } ?: context.getString(R.string.na),
@@ -106,7 +106,11 @@ fun ForecastTile(
             .wrapContentWidth()
             .wrapContentHeight()
             .semantics {
-                contentDescription = context.getString(R.string.app_name) + " Forecast for $time: $temp, " + context.getString(R.string.feels_like, feelsLike) + ", " + context.getString(R.string.precipitation_probability, pop) + ", " + context.getString(R.string.wind_speed, windSpeed) + ", " + context.getString(R.string.cloudiness, cloudiness)
+                contentDescription = context.getString(R.string.app_name) + " Forecast for $time: $temp, " +
+                        context.getString(R.string.feels_like) + " $feelsLike, " +
+                        context.getString(R.string.precipitation_probability, pop) + ", " +
+                        context.getString(R.string.wind_speed, windSpeed) + ", " +
+                        context.getString(R.string.cloudiness, cloudiness)
             },
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceVariant,
@@ -142,21 +146,19 @@ fun ForecastTile(
             Text(
                 text = time,
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha
-
-                = 0.8f),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .semantics { contentDescription = context.getString(R.string.time, time) },
                 textAlign = TextAlign.Center
             )
             Text(
-                text = context.getString(R.string.feels_like, feelsLike),
+                text = context.getString(R.string.feels_like) + " " + feelsLike,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .semantics { contentDescription = context.getString(R.string.feels_like, feelsLike) }
+                    .semantics { contentDescription = context.getString(R.string.feels_like) + " " + feelsLike }
             )
             Text(
                 text = context.getString(R.string.precipitation_probability, pop),

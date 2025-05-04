@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
@@ -34,28 +33,30 @@ import com.guru.fontawesomecomposelib.FaIcons
 @Composable
 fun WeatherSection(
     weatherResponse: WeatherResult,
-    locationName: String, // Add locationName parameter
+    locationName: String,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    // Use the provided locationName
     val displayLocationName = locationName.takeIf { it.isNotEmpty() } ?: context.getString(R.string.na)
 
-    // Date and time formatting
+    // Date and time formatting with 24-hour format
     val formattedDateTime = weatherResponse.dt?.let { timestamp ->
-        timestampToHumanDate(timestamp.toLong(), "EEE, MMM d • hh:mm a")
+        timestampToHumanDate(timestamp.toLong(), "EEE, MMM d • H:mm")
     } ?: context.getString(R.string.loading)
 
-    // Sunrise and sunset times
+    // Sunrise and sunset times with 24-hour format
     val sunriseTime = weatherResponse.sys?.sunrise?.let { timestamp ->
-        timestampToHumanDate(timestamp.toLong(), "hh:mm a")
+        timestampToHumanDate(timestamp.toLong(), "H:mm")
     } ?: context.getString(R.string.loading)
     val sunsetTime = weatherResponse.sys?.sunset?.let { timestamp ->
-        timestampToHumanDate(timestamp.toLong(), "hh:mm a")
+        timestampToHumanDate(timestamp.toLong(), "H:mm")
     } ?: context.getString(R.string.loading)
 
     // Weather description and icon
-    val weatherDescription = weatherResponse.weather?.firstOrNull()?.description?.replaceFirstChar { it.uppercase() } ?: context.getString(R.string.loading)
+    val weatherDescription = weatherResponse.weather?.firstOrNull()?.id?.let { id ->
+        val resourceId = context.resources.getIdentifier("weather_$id", "string", context.packageName)
+        if (resourceId != 0) context.getString(resourceId).replaceFirstChar { it.uppercase() } else context.getString(R.string.loading)
+    } ?: context.getString(R.string.loading)
     val weatherIcon = weatherResponse.weather?.firstOrNull()?.icon ?: context.getString(R.string.loading)
 
     // Temperature and other info
@@ -77,7 +78,6 @@ fun WeatherSection(
             .semantics { contentDescription = context.getString(R.string.current_weather_description, displayLocationName) },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Location, Date/Time, Sunrise, and Sunset
         WeatherTitleSection(
             title = displayLocationName,
             subtitle = context.getString(R.string.sunrise_sunset, sunriseTime, sunsetTime),
@@ -88,12 +88,10 @@ fun WeatherSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Weather Icon
         WeatherImage(icon = weatherIcon)
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Temperature and Description
         WeatherTitleSection(
             title = temperature,
             subtitle = weatherDescription,
@@ -104,7 +102,6 @@ fun WeatherSection(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Additional Temperature Info
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -112,14 +109,13 @@ fun WeatherSection(
                 .semantics { contentDescription = context.getString(R.string.additional_temp_details) },
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            WeatherStatItem(icon = FaIcons.ThermometerHalf, value = feelsLike, label = context.getString(R.string.feels_like, feelsLike))
-            WeatherStatItem(icon = FaIcons.ThermometerEmpty, value = tempMin, label = context.getString(R.string.temperature, tempMin))
-            WeatherStatItem(icon = FaIcons.ThermometerFull, value = tempMax, label = context.getString(R.string.temperature, tempMax))
+            WeatherStatItem(icon = FaIcons.ThermometerHalf, value = feelsLike, label = context.getString(R.string.feels_like))
+            WeatherStatItem(icon = FaIcons.ThermometerEmpty, value = tempMin, label = context.getString(R.string.temp_min))
+            WeatherStatItem(icon = FaIcons.ThermometerFull, value = tempMax, label = context.getString(R.string.temp_max))
         }
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Weather Stats (Aligned in two rows)
         WeatherStatsRow(
             windSpeed = windSpeed,
             windDirection = windDirection,
@@ -146,7 +142,8 @@ fun WeatherTitleSection(
         modifier = modifier
             .fillMaxWidth()
             .semantics {
-                contentDescription = "$title, $subtitle${if (additionalInfo.isNotEmpty()) ", $additionalInfo" else ""}"
+                contentDescription =
+                    "$title, $subtitle${if (additionalInfo.isNotEmpty()) ", $additionalInfo" else ""}"
             },
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -155,16 +152,16 @@ fun WeatherTitleSection(
             style = titleStyle,
             color = MaterialTheme.colorScheme.onBackground,
             fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center, // Center the title text
+            textAlign = TextAlign.Center,
             modifier = Modifier
-                .fillMaxWidth() // Ensure the Text takes full width for centering
+                .fillMaxWidth()
                 .semantics { contentDescription = title }
         )
         Text(
             text = subtitle,
             style = subtitleStyle,
             color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-            textAlign = TextAlign.Center, // Center the subtitle for consistency
+            textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp)
@@ -175,7 +172,7 @@ fun WeatherTitleSection(
                 text = additionalInfo,
                 style = subtitleStyle,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center, // Center the additional info for consistency
+                textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 4.dp)
@@ -204,7 +201,6 @@ fun WeatherStatsRow(
             .semantics { contentDescription = context.getString(R.string.weather_stats) },
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // First row with 4 items
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,7 +212,6 @@ fun WeatherStatsRow(
             WeatherStatItem(icon = FaIcons.Cloud, value = cloudiness, label = context.getString(R.string.clouds))
             WeatherStatItem(icon = FaIcons.Snowflake, value = snowVolume, label = context.getString(R.string.snow))
         }
-        // Second row with 3 items
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -269,7 +264,10 @@ fun WeatherStatItem(
 }
 
 @Composable
-fun WeatherImage(icon: String, modifier: Modifier = Modifier) {
+fun WeatherImage(
+    icon: String,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
     AsyncImage(
         model = buildIcon(icon),
