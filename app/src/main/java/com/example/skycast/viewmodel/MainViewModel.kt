@@ -222,8 +222,16 @@ class MainViewModel : ViewModel() {
 
                 // Step 2: Use the selected language's locale to translate the full address
                 val targetLocale = when (language) {
+                    "en" -> Locale("en", "US") // English (US)
                     "hi" -> Locale("hi", "IN") // Hindi (India)
                     "pa" -> Locale("pa", "IN") // Punjabi (India)
+                    "mr" -> Locale("mr", "IN") // Marathi (India)
+                    "gu" -> Locale("gu", "IN") // Gujarati (India)
+                    "bn" -> Locale("bn", "IN") // Bengali (India)
+                    "ta" -> Locale("ta", "IN") // Tamil (India)
+                    "te" -> Locale("te", "IN") // Telugu (India)
+                    "ml" -> Locale("ml", "IN") // Malayalam (India)
+                    "kn" -> Locale("kn", "IN") // Kannada (India)
                     else -> Locale("en", "US") // Default to English (US)
                 }
 

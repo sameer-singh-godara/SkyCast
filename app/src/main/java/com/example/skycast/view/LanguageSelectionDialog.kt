@@ -32,8 +32,7 @@ fun LanguageSelectionDialog(
         "ta" to context.getString(R.string.tamil),
         "te" to context.getString(R.string.telugu),
         "ml" to context.getString(R.string.malayalam),
-        "kn" to context.getString(R.string.kannada),
-        "ur" to context.getString(R.string.urdu)
+        "kn" to context.getString(R.string.kannada)
     )
 
     // Button to open the dialog
