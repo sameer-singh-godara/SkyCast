@@ -1,4 +1,4 @@
-package com.example.skycast
+﻿package com.example.skycast
 
 import android.content.Context
 import android.content.Intent
